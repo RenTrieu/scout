@@ -24,6 +24,13 @@ const TEST_COMMAND = {
   type: 1,
 };
 
+// Call test command
+const CALL_COMMAND = {
+  name: 'call',
+  description: 'tests a call',
+  type: 1,
+};
+
 // Command containing options
 const CHALLENGE_COMMAND = {
   name: 'challenge',
@@ -40,6 +47,10 @@ const CHALLENGE_COMMAND = {
   type: 1,
 };
 
-const ALL_COMMANDS = [TEST_COMMAND, CHALLENGE_COMMAND];
+const ALL_COMMANDS = [
+  TEST_COMMAND, 
+  CALL_COMMAND, 
+  CHALLENGE_COMMAND
+];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
