@@ -1,6 +1,8 @@
 import 'dotenv/config';
 import fetch from 'node-fetch';
 import { verifyKey } from 'discord-interactions';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 export function VerifyDiscordRequest(clientKey) {
   return function (req, res, buf, encoding) {
@@ -59,4 +61,20 @@ export function getRandomEmoji() {
 
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Helper method to send a UNIX command and returns a Promse that resolves 
+// to the stdout
+export async function unixCommand(cmd) {
+  return new Promise((resolve) => {
+    var exec = require('child_process').exec;
+    var result = '';
+    var child = exec(cmd);
+    child.stdout.on('data', function(data) {
+      result += data;
+    });
+    child.on('close', function() {
+      resolve(result);
+    });
+  });
 }

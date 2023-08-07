@@ -7,10 +7,12 @@ import {
   MessageComponentTypes,
   ButtonStyleTypes,
 } from 'discord-interactions';
-import { VerifyDiscordRequest, getRandomEmoji, DiscordRequest } from './utils.js';
-import { getShuffledOptions, getResult } from './game.js';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+import { 
+  VerifyDiscordRequest, 
+  getRandomEmoji, 
+  DiscordRequest, 
+  unixCommand 
+} from './utils.js';
 
 // Create an express app
 const app = express();
@@ -57,22 +59,12 @@ app.post('/interactions', async function (req, res) {
 
     // "python call" command
     if (name === 'call') {
-
-      var exec = require('child_process').exec;
-      var result = '';
-      var child = exec('cat LICENSE');
-      child.stdout.on('data', function(data) {
-        result += data;
-      });
-      child.on('close', function() {
-        console.log('done');
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            // Fetches a random emoji to send from a helper function
-            content: `call results: ${result}`,
-          },
-        });
+      let output = await unixCommand('cat LICENSE');
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: output,
+        }
       });
     }
   }
