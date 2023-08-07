@@ -78,3 +78,7 @@ export async function unixCommand(cmd) {
     });
   });
 }
+
+export function unixCommandSync(cmd) {
+  return require('child_process').execSync(cmd);
+}
