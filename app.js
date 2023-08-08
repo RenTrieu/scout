@@ -14,6 +14,8 @@ import {
   unixCommand,
   getAvailableSpiders
 } from './utils.js';
+import * as fs from 'node:fs';
+import { Buffer, constants } from 'node:buffer';
 
 // Create an express app
 const app = express();
@@ -60,7 +62,30 @@ app.post('/interactions', async function (req, res) {
       const objectName = req.body.data.options[0].value;
       const activeSpiders = getAvailableSpiders().map((obj) => obj.value);
       if (activeSpiders.includes(objectName)) {
-        let output = await unixCommand(`ls -artl spiders/${objectName}`);
+        // Creating the directory for the spider output
+        // if it does not already exist
+        const outputDir = 'spider_output/'
+        const spiderFile = `${objectName.slice(0, -3)}.json`
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir);
+        }
+
+        try {
+          await unixCommand(`scrapy runspider spiders/${objectName} `
+                            + `-O ${outputDir}${spiderFile}:json`);
+        }
+        catch (error) {
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: 'While trying to run the spider, '
+                       + `the following error occurred: ${error}`,
+            }
+          });
+        }
+
+        const output = fs.readFileSync(`${outputDir}${spiderFile}`).toString();
+
         return res.send({
           type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
           data: {
