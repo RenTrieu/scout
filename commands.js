@@ -1,36 +1,9 @@
 import 'dotenv/config';
 import { 
-  capitalize, 
   InstallGlobalCommands, 
-  unixCommandSync
+  unixCommandSync,
+  getAvailableSpiders
 } from './utils.js';
-
-// Get the game choices from game.js
-// function createCommandChoices() {
-//   const choices = getRPSChoices();
-//   const commandChoices = [];
-//
-//   for (let choice of choices) {
-//     commandChoices.push({
-//       name: capitalize(choice),
-//       value: choice.toLowerCase(),
-//     });
-//   }
-//
-//   return commandChoices;
-// }
-
-// Get available spiders
-async function getAvailableSpiders() {
-  const spiderQuery = unixCommandSync('ls spiders/');
-  const activeSpiders = spiderQuery.toString('utf8')
-                                    .trim()
-                                    .split('\n');
-  const spiderChoices = activeSpiders.map((spider) => {
-    return { name: spider.slice(0, -4), value: spider }
-  });
-  return spiderChoices;
-}
 
 // Simple test command
 const TEST_COMMAND = {

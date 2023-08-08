@@ -82,3 +82,15 @@ export async function unixCommand(cmd) {
 export function unixCommandSync(cmd) {
   return require('child_process').execSync(cmd);
 }
+
+// Get an array of available spiders
+export function getAvailableSpiders() {
+  const spiderQuery = unixCommandSync('ls spiders/');
+  const activeSpiders = spiderQuery.toString('utf8')
+                                    .trim()
+                                    .split('\n');
+  const spiderChoices = activeSpiders.map((spider) => {
+    return { name: spider.slice(0, -3), value: spider }
+  });
+  return spiderChoices;
+}

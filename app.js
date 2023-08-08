@@ -11,7 +11,8 @@ import {
   VerifyDiscordRequest, 
   getRandomEmoji, 
   DiscordRequest, 
-  unixCommand 
+  unixCommand,
+  getAvailableSpiders
 } from './utils.js';
 
 // Create an express app
@@ -56,13 +57,25 @@ app.post('/interactions', async function (req, res) {
 
     // "python call" command
     if (name === 'call') {
-      let output = await unixCommand('cat LICENSE');
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: output,
-        }
-      });
+      const objectName = req.body.data.options[0].value;
+      const activeSpiders = getAvailableSpiders().map((obj) => obj.value);
+      if (activeSpiders.includes(objectName)) {
+        let output = await unixCommand(`ls -artl spiders/${objectName}`);
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: output,
+          }
+        });
+      }
+      else {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Error: spider "${objectName}" not found`,
+          }
+        });
+      }
     }
   }
 });
