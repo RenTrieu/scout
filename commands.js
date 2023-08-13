@@ -28,9 +28,26 @@ const CALL_COMMAND = {
   type: 1,
 };
 
+// Schedule Report
+const SCHEDULE_COMMAND = {
+  name: 'schedule',
+  description: 'Schedules a webscraper to run',
+  options: [
+    {
+      type: 3,
+      name: 'spider',
+      description: 'Choose the webscraper to schedule',
+      required: true,
+      choices: getAvailableSpiders(),
+    }
+  ],
+  type: 1,
+};
+
 const ALL_COMMANDS = [
   TEST_COMMAND, 
   CALL_COMMAND, 
+  SCHEDULE_COMMAND,
 ];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);

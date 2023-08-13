@@ -15,12 +15,19 @@ import {
   getAvailableSpiders
 } from './utils.js';
 import * as fs from 'node:fs';
+import { createRequire } from 'module';
 import { Buffer, constants } from 'node:buffer';
 
 // Create an express app
 const app = express();
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
+// Create a scheduler to handle scheduled events
+const require = createRequire(import.meta.url);
+const schedule = require('node-schedule');
+// Scheduled Spiders storage file
+const scheduleFile = 'scheduledSpiders.csv'
+
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
 
@@ -102,8 +109,38 @@ app.post('/interactions', async function (req, res) {
         });
       }
     }
+
+    // "Schedule Spider" command
+    // if (name === 'schedule') {
+    //   if (!fs.existsSync(scheduleFile)) {
+    //     fs.mkdirSync(scheduleFile);
+    //   }
+    // }
   }
 });
+
+/*
+ * Manages scheduled reports
+ */
+const rule = new schedule.RecurrenceRule();
+rule.minute = 10;
+const job = schedule.scheduleJob(rule, function() {
+  console.log('schedule test');
+});
+
+const channelId = '967038778524966915';
+const endpoint = `channels/${channelId}/messages`
+try {
+  await DiscordRequest(endpoint, { 
+    method: 'POST', 
+    body: { 
+      content: 'test message',
+    }
+  });
+}
+catch (err) {
+  console.error(err);
+}
 
 app.listen(PORT, () => {
   console.log('Listening on port', PORT);
