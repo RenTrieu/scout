@@ -4,7 +4,8 @@ import {
 } from 'discord-interactions';
 import {
   unixCommandSync,
-  getAvailableSpiders
+  getAvailableSpiders,
+  DiscordRequest
 } from './utils.js';
 import * as fs from 'node:fs';
 

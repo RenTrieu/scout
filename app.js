@@ -119,7 +119,31 @@ app.post('/interactions', async function (req, res) {
 
     // "Schedule Spider" command
     if (name === 'schedule') {
-      return smartParse(req, res);
+      const spider_name = req.body.data.options[0].value;
+      const channel_id = req.body.channel_id;
+      const user_id = req.body.member.user.id;
+      db.run(
+        'INSERT INTO schedule (user_id, channel_id, spider_name) VALUES '
+        + '($user_id, $channel_id, $spider_name)',
+        {
+          $user_id: user_id,
+          $channel_id: channel_id,
+          $spider_name: spider_name
+        },
+        function() {
+          console.log('Insert successful!');
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: `Updates from Spider ${spider_name} scheduled by `
+                       + `<@${user_id}> for channel <#${channel_id}>`,
+              allowed_mentions: {
+                "users": [user_id]
+              }
+            }
+          });
+        }
+      );
     }
   }
 });
