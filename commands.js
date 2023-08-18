@@ -44,10 +44,18 @@ const SCHEDULE_COMMAND = {
   type: 1,
 };
 
+// List a user's scheduled spiders
+const LIST_COMMAND =  {
+  name: 'list',
+  description: 'Lists your scheduled spiders',
+  type: 1,
+};
+
 const ALL_COMMANDS = [
   TEST_COMMAND, 
   CALL_COMMAND, 
   SCHEDULE_COMMAND,
+  LIST_COMMAND,
 ];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);

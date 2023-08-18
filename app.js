@@ -117,6 +117,30 @@ app.post('/interactions', async function (req, res) {
       }
     }
 
+    // List Scheduled Spiders command
+    if (name === 'list') {
+      const user_id = req.body.member.user.id;
+      db.all(
+        `SELECT * FROM schedule WHERE user_id=${user_id}`,
+        function(_err, rows) {
+          let userSpiders = rows.filter((row) => row.user_id = user_id);
+          let returnStr = `Listing spiders for <@${user_id}>:\n`;
+          for (let i in userSpiders) {
+            returnStr += `${JSON.stringify(userSpiders[i])}\n`;
+          }
+          return res.send({
+            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+            data: {
+              content: returnStr,
+              allowed_mentions: {
+                "users": [user_id]
+              }
+            }
+          });
+        }
+      );
+    }
+
     // "Schedule Spider" command
     if (name === 'schedule') {
       const spider_name = req.body.data.options[0].value;
@@ -149,27 +173,13 @@ app.post('/interactions', async function (req, res) {
 });
 
 /*
- * Manages scheduled reports
+ * Runs scheduled spiders at a regular interval
  */
 const rule = new schedule.RecurrenceRule();
 rule.minute = 10;
 const job = schedule.scheduleJob(rule, function() {
   console.log('schedule test');
 });
-
-const channelId = '967038778524966915';
-const endpoint = `channels/${channelId}/messages`
-try {
-  await DiscordRequest(endpoint, { 
-    method: 'POST', 
-    body: { 
-      content: 'test message',
-    }
-  });
-}
-catch (err) {
-  console.error(err);
-}
 
 app.listen(PORT, () => {
   console.log('Listening on port', PORT);
