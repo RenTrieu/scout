@@ -178,7 +178,7 @@ app.post('/interactions', async function (req, res) {
  * Runs scheduled spiders at a regular interval
  */
 const rule = new schedule.RecurrenceRule();
-rule.minute = 51;
+rule.minute = 59;
 const job = schedule.scheduleJob(rule, function() {
   let userSetPromise = getActiveUsers(db);
   
@@ -197,7 +197,8 @@ const job = schedule.scheduleJob(rule, function() {
 
           const endpoint = `channels/${channelId}/messages`
           let requestPromise = new Promise((resolve, reject) => {
-            const spiderResult = diffParse(spiderName);
+            const spiderResult = `<@${userId}> ${spiderName} results:\n`
+                                 + diffParse(spiderName);
             DiscordRequest(endpoint, { 
               method: 'POST', 
               body: { 
