@@ -178,11 +178,41 @@ app.post('/interactions', async function (req, res) {
  * Runs scheduled spiders at a regular interval
  */
 const rule = new schedule.RecurrenceRule();
-rule.minute = 10;
+rule.minute = 51;
 const job = schedule.scheduleJob(rule, function() {
   let userSetPromise = getActiveUsers(db);
+  
   userSetPromise.then((userSet) => {
-    console.log(`userSet: ${userSet}`);
+    // Iterating through each user in the database
+    userSet.forEach((userId) => {
+      console.log(`Running spiders for user: ${userId}`);
+      const userSpidersPromise = getUserSpiders(db, userId);
+
+      userSpidersPromise.then((userSpiders) => {
+        // Running spiders for each user
+        for (const i in userSpiders) {
+          const spider = userSpiders[i];
+          const channelId = spider.channel_id;
+          const spiderName = spider.spider_name;
+
+          const endpoint = `channels/${channelId}/messages`
+          let requestPromise = new Promise((resolve, reject) => {
+            const spiderResult = diffParse(spiderName);
+            DiscordRequest(endpoint, { 
+              method: 'POST', 
+              body: { 
+                content: spiderResult,
+                allowed_mentions: {
+                  "users": [userId]
+                }
+              }
+            })
+          });
+          requestPromise.then();
+        }
+      });
+
+    });
   });
   console.log('schedule test');
 });

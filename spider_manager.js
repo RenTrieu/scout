@@ -13,9 +13,11 @@ import * as fs from 'node:fs';
 /*
  * Runs a given spider and only reports the changes between the current and 
  * previous output
+ *
+ * Returns results as a String containing either spider results or error
+ * message
  */
-export function diffParse(req, res) {
-  const spiderName = req.body.data.options[0].value;
+export function diffParse(spiderName) {
   const activeSpiders = getAvailableSpiders().map((obj) => obj.value);
   let prevOutput;
   if (activeSpiders.includes(spiderName)) {
@@ -41,13 +43,8 @@ export function diffParse(req, res) {
       );
     }
     catch (error) {
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `While trying to run the spider "${spiderName}", `
-                   + `the following error occurred: ${error}`,
-        }
-      });
+      return `While trying to run the spider "${spiderName}", `
+             + `the following error occurred: ${error}`;
     }
 
     const output = fs.readFileSync(
@@ -56,23 +53,13 @@ export function diffParse(req, res) {
 
     if (typeof prevOutput === "undefined" ) {
       // If there was no previous output, return the Spider output
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `No previous results for spider "${spiderName}". `
-                   + `Current results: ${output}`,
-        }
-      });
+      return `No previous results for spider "${spiderName}". `
+             + `Current results: ${output}`
     }
     // Otherwise, only report differences between the previous and 
     // current output
     else if (prevOutput === output) {
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `No change in the output of spider "${spiderName}"`,
-        }
-      });
+      return `No change in the output of spider "${spiderName}"`;
     }
     else {
       let prevObj = JSON.parse(prevOutput).map((el) => {
@@ -97,22 +84,11 @@ export function diffParse(req, res) {
           return `${Object.values(elObj)}\n`
         });
       console.log(`contentStr: ${contentStr}`);
-
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: contentStr,
-        }
-      });
+      return contentStr;
     }
   }
   else {
-    return res.send({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: `Spider "${spiderName}" does not exist.`
-      }
-    });
+    return `Spider "${spiderName}" does not exist.`;
   }
 }
 
@@ -127,11 +103,8 @@ export async function getActiveUsers(db) {
       function(_err, rows) {
         const userSet = new Set();
         for (const i in rows) {
-          console.log(`Adding: ${rows[i].user_id}`);
           userSet.add(rows[i].user_id);
         }
-        userSet.add('test');
-        console.log(userSet);
         resolve(userSet)
       })
     }
