@@ -146,7 +146,8 @@ export async function getActiveUsers(db) {
 export async function getUserSpiders(db, userId) {
   let getUserSpiders = new Promise((resolve, reject) => {
     db.all(
-      `SELECT * FROM schedule WHERE userId=${userId}`,
+      `SELECT * FROM schedule WHERE user_id=$user_id`,
+      { $user_id: userId },
       function(_err, rows) {
         let userSpiders = rows.filter((row) => row.userId = userId);
         resolve(userSpiders);

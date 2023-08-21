@@ -18,6 +18,7 @@ import {
 import {
   diffParse,
   getActiveUsers,
+  getUserSpiders
 } from './spider_manager.js';
 import * as fs from 'node:fs';
 import { createRequire } from 'module';
@@ -124,26 +125,21 @@ app.post('/interactions', async function (req, res) {
 
     // List Scheduled Spiders command
     if (name === 'list') {
-      const user_id = req.body.member.user.id;
-      db.all(
-        `SELECT * FROM schedule WHERE user_id=${user_id}`,
-        function(_err, rows) {
-          let userSpiders = rows.filter((row) => row.user_id = user_id);
-          let returnStr = `Listing spiders for <@${user_id}>:\n`;
-          for (let i in userSpiders) {
-            returnStr += `${JSON.stringify(userSpiders[i])}\n`;
+      const userId = req.body.member.user.id;
+      let userSpiders = await getUserSpiders(db, userId);
+      let returnStr = '';
+      for (let i in userSpiders) {
+        returnStr += `${JSON.stringify(userSpiders[i])}\n`;
+      }
+      return res.send({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: returnStr,
+          allowed_mentions: {
+            "users": [userId]
           }
-          return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content: returnStr,
-              allowed_mentions: {
-                "users": [user_id]
-              }
-            }
-          });
         }
-      );
+      });
     }
 
     // "Schedule Spider" command
@@ -160,6 +156,7 @@ app.post('/interactions', async function (req, res) {
           $spider_name: spider_name
         },
         function() {
+          // TODO: Take out this debug statement
           console.log('Insert successful!');
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
