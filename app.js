@@ -16,7 +16,8 @@ import {
   getAvailableSpiders
 } from './utils.js';
 import {
-  smartParse,
+  diffParse,
+  getActiveUsers,
 } from './spider_manager.js';
 import * as fs from 'node:fs';
 import { createRequire } from 'module';
@@ -62,11 +63,15 @@ app.post('/interactions', async function (req, res) {
     // "test" command
     if (name === 'test') {
       // Send a message into the channel where command was triggered from
+      let output = '';
+      let userSet = await getActiveUsers(db);
+      userSet.forEach((value) => {
+        output += value
+      });
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          // Fetches a random emoji to send from a helper function
-          content: 'hello world ' + getRandomEmoji(),
+          content: output
         },
       });
     }
@@ -178,6 +183,10 @@ app.post('/interactions', async function (req, res) {
 const rule = new schedule.RecurrenceRule();
 rule.minute = 10;
 const job = schedule.scheduleJob(rule, function() {
+  let userSetPromise = getActiveUsers(db);
+  userSetPromise.then((userSet) => {
+    console.log(`userSet: ${userSet}`);
+  });
   console.log('schedule test');
 });
 

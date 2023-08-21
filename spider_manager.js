@@ -10,7 +10,11 @@ import {
 import * as fs from 'node:fs';
 
 
-export function smartParse(req, res) {
+/*
+ * Runs a given spider and only reports the changes between the current and 
+ * previous output
+ */
+export function diffParse(req, res) {
   const spiderName = req.body.data.options[0].value;
   const activeSpiders = getAvailableSpiders().map((obj) => obj.value);
   let prevOutput;
@@ -110,4 +114,44 @@ export function smartParse(req, res) {
       }
     });
   }
+}
+
+/*
+ * Iterates through the database and returns a Promise that resolves to a 
+ * Set() containing all users that have active spiders
+ */
+export async function getActiveUsers(db) {
+  let getUserSet = new Promise((resolve, reject) => {
+    db.all(
+      'SELECT user_id FROM schedule',
+      function(_err, rows) {
+        const userSet = new Set();
+        for (const i in rows) {
+          console.log(`Adding: ${rows[i].user_id}`);
+          userSet.add(rows[i].user_id);
+        }
+        userSet.add('test');
+        console.log(userSet);
+        resolve(userSet)
+      })
+    }
+  );
+  return getUserSet;
+}
+
+/*
+ * Queries the database for all spiders owned by a user
+ * and returns a Promise that resolves to an array of the results
+ */
+export async function getUserSpiders(db, userId) {
+  let getUserSpiders = new Promise((resolve, reject) => {
+    db.all(
+      `SELECT * FROM schedule WHERE userId=${userId}`,
+      function(_err, rows) {
+        let userSpiders = rows.filter((row) => row.userId = userId);
+        resolve(userSpiders);
+      }
+    )
+  });
+  return getUserSpiders;
 }
