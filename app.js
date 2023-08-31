@@ -13,12 +13,13 @@ import {
   DiscordRequest, 
   unixCommand,
   unixCommandSync,
-  getAvailableSpiders
+  getAvailableSpiders,
 } from './utils.js';
 import {
   diffParse,
   getActiveUsers,
-  getUserSpiders
+  getUserSpiders,
+  checkSpider
 } from './spider_manager.js';
 import * as fs from 'node:fs';
 import { createRequire } from 'module';
@@ -92,7 +93,7 @@ app.post('/interactions', async function (req, res) {
 
         try {
           await unixCommand(`scrapy runspider spiders/${objectName} `
-                            + `-O ${outputDir}${spiderFile}:json`);
+                            + `-O ${outputDir}${spiderFile}:json 2>/dev/null`);
         }
         catch (error) {
           return res.send({
@@ -147,6 +148,19 @@ app.post('/interactions', async function (req, res) {
       const spider_name = req.body.data.options[0].value;
       const channel_id = req.body.channel_id;
       const user_id = req.body.member.user.id;
+      let spiderExists = await checkSpider(db, user_id, channel_id, spider_name);
+      if (spiderExists) {
+        return res.send({
+          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+          data: {
+            content: `Spider ${spider_name} already exists for user `
+                     + `<@${user_id}> for channel <#${channel_id}>.`,
+            allowed_mentions: {
+              "users": [user_id]
+            }
+          }
+        });
+      }
       db.run(
         'INSERT INTO schedule (user_id, channel_id, spider_name) VALUES '
         + '($user_id, $channel_id, $spider_name)',
@@ -156,8 +170,6 @@ app.post('/interactions', async function (req, res) {
           $spider_name: spider_name
         },
         function() {
-          // TODO: Take out this debug statement
-          console.log('Insert successful!');
           return res.send({
             type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
             data: {
