@@ -36,7 +36,8 @@ const schedule = require('node-schedule');
 // TODO: Move the Database to disk and make persistent
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database(':memory:');
-db.run("CREATE TABLE schedule (user_id VARCHAR, channel_id VARCHAR, spider_name TEXT)");
+db.run("CREATE TABLE schedule (user_id VARCHAR NOT NULL, "
+       + "channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL)");
 
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));

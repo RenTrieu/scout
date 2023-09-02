@@ -122,7 +122,7 @@ export async function getUserSpiders(db, userId) {
       `SELECT * FROM schedule WHERE user_id=$user_id`,
       { $user_id: userId },
       function(_err, rows) {
-        let userSpiders = rows.filter((row) => row.userId = userId);
+        let userSpiders = rows.filter((row) => row.user_id == userId);
         resolve(userSpiders);
       }
     )
