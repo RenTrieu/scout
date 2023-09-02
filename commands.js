@@ -28,6 +28,20 @@ const CALL_COMMAND = {
   type: 1,
 };
 
+// Remove Spider command
+const REMOVE_COMMAND = {
+  name: 'remove',
+  description: 'Removes a spider',
+  options: [
+    {
+      type: 3,
+      name: 'spider-uuid',
+      description: 'UUID of the spider to be removed',
+      required: true,
+    }
+  ]
+}
+
 // Schedule Report
 const SCHEDULE_COMMAND = {
   name: 'schedule',
@@ -56,6 +70,7 @@ const ALL_COMMANDS = [
   CALL_COMMAND, 
   SCHEDULE_COMMAND,
   LIST_COMMAND,
+  REMOVE_COMMAND,
 ];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
