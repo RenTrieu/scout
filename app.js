@@ -40,7 +40,7 @@ const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database(':memory:');
 db.run("CREATE TABLE schedule (uuid VARCHAR NOT NULL, "
        + "user_id VARCHAR NOT NULL, channel_id VARCHAR NOT NULL, "
-       + "spider_name TEXT NOT NULL)");
+       + "spider_name TEXT NOT NULL, PRIMARY KEY (uuid))");
 
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
