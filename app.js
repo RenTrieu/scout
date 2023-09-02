@@ -19,11 +19,13 @@ import {
   diffParse,
   getActiveUsers,
   getUserSpiders,
-  checkSpider
+  checkSpider,
+  checkUUID,
 } from './spider_manager.js';
 import * as fs from 'node:fs';
 import { createRequire } from 'module';
 import { Buffer, constants } from 'node:buffer';
+import crypto from 'node:crypto';
 
 // Create an express app
 const app = express();
@@ -36,8 +38,9 @@ const schedule = require('node-schedule');
 // TODO: Move the Database to disk and make persistent
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database(':memory:');
-db.run("CREATE TABLE schedule (user_id VARCHAR NOT NULL, "
-       + "channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL)");
+db.run("CREATE TABLE schedule (uuid VARCHAR NOT NULL, "
+       + "user_id VARCHAR NOT NULL, channel_id VARCHAR NOT NULL, "
+       + "spider_name TEXT NOT NULL)");
 
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
@@ -162,10 +165,21 @@ app.post('/interactions', async function (req, res) {
           }
         });
       }
+
+      // Regenerates uuid if it already exists in the database
+      let uuidExists = true;
+      let uuid;
+      do {
+        uuid = crypto.randomUUID();
+        uuidExists = await checkUUID(db, uuid);
+      }
+      while (uuidExists);
+
       db.run(
-        'INSERT INTO schedule (user_id, channel_id, spider_name) VALUES '
-        + '($user_id, $channel_id, $spider_name)',
+        'INSERT INTO schedule (uuid, user_id, channel_id, spider_name) VALUES '
+        + '($uuid, $user_id, $channel_id, $spider_name)',
         {
+          $uuid: uuid,
           $user_id: user_id,
           $channel_id: channel_id,
           $spider_name: spider_name
