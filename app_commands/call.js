@@ -1,4 +1,4 @@
-import { InteractionResponseType } from "discord-interactions";
+import { InteractionResponseType } from 'discord-interactions';
 import {
   getAvailableSpiders,
   unixCommand,

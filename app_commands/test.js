@@ -1,4 +1,4 @@
-import { InteractionResponseType } from "discord-interactions";
+import { InteractionResponseType } from 'discord-interactions';
 
 export default function testCommand(req, res) {
   return res.send({

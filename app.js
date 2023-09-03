@@ -25,11 +25,13 @@ import {
 import {
   callCommand,
   testCommand,
+  listCommand,
+  scheduleCommand,
+  removeCommand,
 } from './app_commands/index.js';
 import * as fs from 'node:fs';
 import { createRequire } from 'module';
 import { Buffer, constants } from 'node:buffer';
-import crypto from 'node:crypto';
 
 // Create an express app
 const app = express();
@@ -83,120 +85,17 @@ app.post('/interactions', async function (req, res) {
 
     // List Scheduled Spiders command
     if (name === 'list') {
-      const userId = req.body.member.user.id;
-      let userSpiders = await getUserSpiders(db, userId);
-      if (userSpiders.length <= 0) {
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: `No scheduled spiders exists for <@${userId}>`,
-            allowed_mentions: {
-              "users": [userId]
-            }
-          }
-        });
-      }
-      let returnStr = '';
-      for (let i in userSpiders) {
-        returnStr += `${JSON.stringify(userSpiders[i])}\n`;
-      }
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: returnStr,
-          allowed_mentions: {
-            "users": [userId]
-          }
-        }
-      });
+      return listCommand(req, res, db);
     }
 
     // "Schedule Spider" command
     if (name === 'schedule') {
-      const spider_name = req.body.data.options[0].value;
-      const channel_id = req.body.channel_id;
-      const user_id = req.body.member.user.id;
-      let spiderExists = await checkSpider(db, user_id, channel_id, spider_name);
-      if (spiderExists) {
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: `Spider ${spider_name} already exists for user `
-                     + `<@${user_id}> for channel <#${channel_id}>.`,
-            allowed_mentions: {
-              "users": [user_id]
-            }
-          }
-        });
-      }
-
-      // Regenerates uuid if it already exists in the database
-      let uuidExists = true;
-      let uuid;
-      do {
-        uuid = crypto.randomUUID();
-        uuidExists = await checkUUID(db, uuid);
-      }
-      while (uuidExists);
-
-      db.run(
-        'INSERT INTO schedule (uuid, user_id, channel_id, spider_name) VALUES '
-        + '($uuid, $user_id, $channel_id, $spider_name)',
-        {
-          $uuid: uuid,
-          $user_id: user_id,
-          $channel_id: channel_id,
-          $spider_name: spider_name
-        },
-        function() {
-          return res.send({
-            type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-            data: {
-              content: `Updates from Spider ${spider_name} scheduled by `
-                       + `<@${user_id}> for channel <#${channel_id}>`,
-              allowed_mentions: {
-                "users": [user_id]
-              }
-            }
-          });
-        }
-      );
+      return scheduleCommand(req, res, db);
     }
 
+    // Remove Spider command
     if (name === 'remove') {
-      const uuid = req.body.data.options[0].value;
-      const userId = req.body.member.user.id;
-      const userSpiders = await getUserSpiders(db, userId);
-      const matchingSpider = userSpiders.filter((row) => row.uuid == uuid);
-      if (matchingSpider.length <= 0) {
-        return res.send({
-          type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-          data: {
-            content: `No spider for <@${userId}> exists with a uuid of ${uuid}`,
-            allowed_mentions: {
-              "users": [userId]
-            }
-          }
-        });
-      }
-      else {
-        db.run(
-          'DELETE FROM schedule WHERE uuid=$uuid',
-          { $uuid: uuid },
-          function() {
-            return res.send({
-              type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-              data: {
-                content: `Deleted Spider with uuid ${uuid} for user `
-                         + `<@${userId}>`,
-                allowed_mentions: {
-                  "users": [userId]
-                }
-              }
-            });
-          }
-        );
-      }
+      return removeCommand(req, res, db);
     }
   }
 });
