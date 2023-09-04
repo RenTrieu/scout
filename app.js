@@ -29,6 +29,9 @@ import {
   scheduleCommand,
   removeCommand,
 } from './app_commands/index.js';
+import {
+  adminListCommand,
+} from './admin_commands/index.js';
 import * as fs from 'node:fs';
 import { createRequire } from 'module';
 import { Buffer, constants } from 'node:buffer';
@@ -45,8 +48,9 @@ const schedule = require('node-schedule');
 const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database(':memory:');
 db.run("CREATE TABLE schedule (uuid VARCHAR NOT NULL, "
-       + "user_id VARCHAR NOT NULL, channel_id VARCHAR NOT NULL, "
-       + "spider_name TEXT NOT NULL, PRIMARY KEY (uuid))");
+       + "guild_id VARCHAR NOT NULL, user_id VARCHAR NOT NULL, "
+       + "channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL, "
+       + "PRIMARY KEY (uuid))");
 
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
@@ -96,6 +100,11 @@ app.post('/interactions', async function (req, res) {
     // Remove Spider command
     if (name === 'remove') {
       return removeCommand(req, res, db);
+    }
+
+    // Admin List command
+    if (name === 'admin_list') {
+      return adminListCommand(req, res, db);
     }
   }
 });

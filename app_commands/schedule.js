@@ -6,6 +6,7 @@ export default async function scheduleCommand(req, res, db) {
   const spider_name = req.body.data.options[0].value;
   const channel_id = req.body.channel_id;
   const user_id = req.body.member.user.id;
+  const guild_id = req.body.guild_id;
   let spiderExists = await checkSpider(db, user_id, channel_id, spider_name);
   if (spiderExists) {
     return res.send({
@@ -30,12 +31,13 @@ export default async function scheduleCommand(req, res, db) {
   while (uuidExists);
 
   db.run(
-    'INSERT INTO schedule (uuid, user_id, channel_id, spider_name) VALUES '
-    + '($uuid, $user_id, $channel_id, $spider_name)',
+    'INSERT INTO schedule (uuid, user_id, channel_id, guild_id, spider_name) '
+    + 'VALUES ($uuid, $user_id, $channel_id, $guild_id, $spider_name)',
     {
       $uuid: uuid,
       $user_id: user_id,
       $channel_id: channel_id,
+      $guild_id: guild_id,
       $spider_name: spider_name
     },
     function() {

@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { 
   InstallGlobalCommands, 
+  InstallGuildCommands,
   unixCommandSync,
   getAvailableSpiders
 } from './utils.js';
@@ -39,7 +40,8 @@ const REMOVE_COMMAND = {
       description: 'UUID of the spider to be removed',
       required: true,
     }
-  ]
+  ],
+  type: 1,
 }
 
 // Schedule Report
@@ -74,3 +76,55 @@ const ALL_COMMANDS = [
 ];
 
 InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
+
+// Admin command that lists all scheduled spiders
+const ADMIN_LIST_COMMAND = {
+  name: 'admin_list',
+  description: 'Used to display all active scheduled spiders',
+  options: [
+    {
+      type: 3,
+      name: 'user-id',
+      description: 'Displays scheduled spiders for the given user',
+      required: false,
+    },
+    {
+      type: 3,
+      name: 'guild-id',
+      description: 'Displays scheduled spiders for a given guild',
+      required: false,
+    },
+    {
+      type: 3,
+      name: 'spider-name',
+      description: 'Displays scheduled spiders that match the given spider',
+      required: false,
+    }
+  ],
+  type: 1,
+}
+
+// Admin command that removes any scheduled spider
+const ADMIN_REMOVE_COMMAND = {
+  name: 'admin_remove',
+  description: ' Removes any scheduled spider',
+  options: [
+    {
+      type: 3,
+      name: 'spider-uuid',
+      description: 'UUID of the spider to be removed',
+      required: true,
+    }
+  ],
+  type: 1,
+}
+
+const GUILD_COMMANDS = [
+  ADMIN_LIST_COMMAND,
+  ADMIN_REMOVE_COMMAND,
+];
+InstallGuildCommands(
+  process.env.APP_ID, 
+  process.env.ADMIN_GUILD_ID, 
+  GUILD_COMMANDS
+);
