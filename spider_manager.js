@@ -39,7 +39,7 @@ export function diffParse(spiderName) {
     try {
       unixCommandSync(
         `scrapy runspider spiders/${spiderName} `
-        + `-O ${outputDir}${spiderFile}:json`
+        + `-O ${outputDir}${spiderFile}:json 2>/dev/null`
       );
     }
     catch (error) {
