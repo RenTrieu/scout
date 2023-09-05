@@ -99,6 +99,7 @@ const ADMIN_LIST_COMMAND = {
       name: 'spider-name',
       description: 'Displays scheduled spiders that match the given spider',
       required: false,
+      choices: getAvailableSpiders(),
     }
   ],
   type: 1,
@@ -107,7 +108,7 @@ const ADMIN_LIST_COMMAND = {
 // Admin command that removes any scheduled spider
 const ADMIN_REMOVE_COMMAND = {
   name: 'admin_remove',
-  description: ' Removes any scheduled spider',
+  description: 'Removes any scheduled spider',
   options: [
     {
       type: 3,
@@ -119,10 +120,46 @@ const ADMIN_REMOVE_COMMAND = {
   type: 1,
 }
 
+// Admin command that schedules a spider for a given user, channel, ad guild
+const ADMIN_SCHEDULE_COMMAND = {
+  name: 'admin_schedule',
+  description: 'Schedules a spider',
+  options: [
+    {
+      type: 3,
+      name: 'spider-name',
+      description: 'Spider to schedule',
+      required: true,
+      choices: getAvailableSpiders(),
+    },
+    {
+      type: 3,
+      name: 'user-id',
+      description: 'User to schedule spider for',
+      required: true,
+    },
+    {
+      type: 3,
+      name: 'channel-id',
+      description: 'Channel in which to schedule spider',
+      required: true,
+    },
+    {
+      type: 3,
+      name: 'guild-id',
+      description: 'Guild in which to schedule spider',
+      required: true,
+    }
+  ],
+  type: 1,
+}
+
 const GUILD_COMMANDS = [
   ADMIN_LIST_COMMAND,
   ADMIN_REMOVE_COMMAND,
+  ADMIN_SCHEDULE_COMMAND,
 ];
+
 InstallGuildCommands(
   process.env.APP_ID, 
   process.env.ADMIN_GUILD_ID, 

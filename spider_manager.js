@@ -153,25 +153,3 @@ export async function checkSpider(db, userId, channelId, spiderName) {
   return getSpiderRow;
 }
 
-/*
- * Queries the database to check to see if a Spider Schedule with a given 
- * UUID exists and returns a Promise that resolves to true if it exists in
- * the database
- */
-export async function checkUUID(db, uuid) {
-  let getSpiderRow = new Promise((resolve, reject) => {
-    db.all(
-      `SELECT * FROM schedule WHERE uuid=$uuid`,
-      { $uuid: uuid },
-      function(_err, rows) {
-        if (rows.length > 0) {
-          resolve(true);
-        }
-        else {
-          resolve(false);
-        }
-      }
-    )
-  });
-  return getSpiderRow;
-}

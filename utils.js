@@ -2,6 +2,7 @@ import 'dotenv/config';
 import fetch from 'node-fetch';
 import { verifyKey } from 'discord-interactions';
 import { createRequire } from 'module';
+import crypto from 'node:crypto';
 const require = createRequire(import.meta.url);
 
 export function VerifyDiscordRequest(clientKey) {
@@ -73,8 +74,10 @@ export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Helper method to send a UNIX command and returns a Promse that resolves 
-// to the stdout
+/*
+ * Helper method to send a UNIX command and returns a Promse that resolves 
+ * to the stdout
+ */
 export async function unixCommand(cmd) {
   return new Promise((resolve) => {
     var exec = require('child_process').exec;
@@ -93,7 +96,9 @@ export function unixCommandSync(cmd) {
   return require('child_process').execSync(cmd);
 }
 
-// Get an array of available spiders
+/*
+ * Get an array of available spiders
+ */
 export function getAvailableSpiders() {
   const spiderQuery = unixCommandSync('ls spiders/');
   const activeSpiders = spiderQuery.toString('utf8')
@@ -104,3 +109,41 @@ export function getAvailableSpiders() {
   });
   return spiderChoices;
 }
+
+/*
+ * Queries the database to check to see if a row with a given 
+ * UUID exists and returns a Promise that resolves to true if it exists in
+ * the database
+ */
+export async function checkUUID(db, uuid) {
+  let row = new Promise((resolve, reject) => {
+    db.all(
+      `SELECT * FROM schedule WHERE uuid=$uuid`,
+      { $uuid: uuid },
+      function(_err, rows) {
+        if (rows.length > 0) {
+          resolve(true);
+        }
+        else {
+          resolve(false);
+        }
+      }
+    )
+  });
+  return row;
+}
+
+/*
+ * Helper method that generates a UUID that does not exist in the database
+ */
+export async function genUUID(db) {
+  let uuidExists = true;
+  let uuid;
+  do {
+    uuid = crypto.randomUUID();
+    uuidExists = await checkUUID(db, uuid);
+  }
+  while (uuidExists);
+  return uuid;
+}
+

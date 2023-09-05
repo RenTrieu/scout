@@ -1,6 +1,6 @@
-import crypto from 'node:crypto';
 import { InteractionResponseType } from 'discord-interactions';
-import { checkSpider, checkUUID } from '../spider_manager.js';
+import { checkSpider } from '../spider_manager.js';
+import { genUUID } from '../utils.js';
 
 export default async function scheduleCommand(req, res, db) {
   const spider_name = req.body.data.options[0].value;
@@ -21,14 +21,7 @@ export default async function scheduleCommand(req, res, db) {
     });
   }
 
-  // Regenerates uuid if it already exists in the database
-  let uuidExists = true;
-  let uuid;
-  do {
-    uuid = crypto.randomUUID();
-    uuidExists = await checkUUID(db, uuid);
-  }
-  while (uuidExists);
+  const uuid = await genUUID(db);
 
   db.run(
     'INSERT INTO schedule (uuid, user_id, channel_id, guild_id, spider_name) '

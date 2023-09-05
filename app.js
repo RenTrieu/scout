@@ -9,18 +9,12 @@ import {
 } from 'discord-interactions';
 import { 
   VerifyDiscordRequest, 
-  getRandomEmoji, 
   DiscordRequest, 
-  unixCommand,
-  unixCommandSync,
-  getAvailableSpiders,
 } from './utils.js';
 import {
   diffParse,
   getActiveUsers,
   getUserSpiders,
-  checkSpider,
-  checkUUID,
 } from './spider_manager.js';
 import {
   callCommand,
@@ -31,6 +25,8 @@ import {
 } from './app_commands/index.js';
 import {
   adminListCommand,
+  adminRemoveCommand,
+  adminScheduleCommand
 } from './admin_commands/index.js';
 import * as fs from 'node:fs';
 import { createRequire } from 'module';
@@ -82,7 +78,9 @@ app.post('/interactions', async function (req, res) {
       return testCommand(req, res);
     }
 
-    // "python call" command
+    /* Application Commands */
+
+    // "Spider Call" command
     if (name === 'call') {
       return await callCommand(req, res);
     }
@@ -102,9 +100,21 @@ app.post('/interactions', async function (req, res) {
       return removeCommand(req, res, db);
     }
 
+    /* Admin Commands */
+
     // Admin List command
     if (name === 'admin_list') {
       return adminListCommand(req, res, db);
+    }
+
+    // Admin Remove command
+    if (name == 'admin_remove') {
+      return adminRemoveCommand(req, res, db);
+    }
+
+    // Admin Schedule command
+    if (name == 'admin_schedule') {
+      return adminScheduleCommand(req, res, db);
     }
   }
 });
