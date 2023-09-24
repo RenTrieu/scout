@@ -64,7 +64,20 @@ export default async function adminListCommand(req, res, db) {
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
           content: JSON.stringify(rows),
-        }
+          components: [
+            {
+              "type": 1,
+              "components": [
+                {
+                  "type": 2,
+                  "label": "TEST BUTTON",
+                  "style": 1,
+                  "custom_id": "test_button"
+                }
+              ]
+            }
+          ]
+        },
       });
     }
   });

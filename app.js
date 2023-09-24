@@ -117,6 +117,23 @@ app.post('/interactions', async function (req, res) {
       return adminScheduleCommand(req, res, db);
     }
   }
+
+  /*
+   * Handle message component interactions
+   */
+  if (type === InteractionType.MESSAGE_COMPONENT) {
+    const custom_id = req.body.data.custom_id;
+    console.log(`custom_id: ${custom_id}`);
+    // const message = 
+
+    return res.send({ 
+      type: InteractionResponseType.UPDATE_MESSAGE,
+      data: {
+        content: `custom_id: ${custom_id}`,
+      }
+    });
+  }
+
 });
 
 /*
