@@ -1,6 +1,8 @@
 import { InteractionResponseType } from "discord-interactions";
 
-export default async function adminListCommand(req, res, db) {
+export default async function adminListCommand(
+  req, res, db, display_limit=2
+) {
   let sqlQuery = 'SELECT * FROM schedule';
   let sqlValues = {};
 
@@ -42,6 +44,7 @@ export default async function adminListCommand(req, res, db) {
     }
   }
 
+
   const getSpiderRows = new Promise((resolve, reject) => {
     db.all(sqlQuery, sqlValues,
       function(_err, rows) {
@@ -60,19 +63,52 @@ export default async function adminListCommand(req, res, db) {
       });
     }
     else {
+      const display_rows = rows.slice(0, display_limit);
+      var row_embeds = [];
+      row_embeds.push(
+        {
+          title: `Result Page [0/${Math.ceil(rows.length/display_limit)}]`,
+          type: 'rich',
+          description: `Query: ${sqlQuery}`,
+        }
+      )
+      var resultNum = 1;
+      display_rows.forEach((row) => {
+        row_embeds.push(
+          {
+            title: `Result [${resultNum}/${display_limit}]`,
+            type: 'rich',
+            fields: [
+              { name: 'UUID', 'value': row.uuid },
+              { name: 'Spider', 'value': row.spider_name },
+              { name: 'Guild', 'value': row.guild_id },
+              { name: 'Channel', 'value': row.channel_id },
+              { name: 'User', 'value': row.user_id }
+            ]
+          }
+        );
+        resultNum += 1;
+      });
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
-          content: JSON.stringify(rows),
+          embeds: row_embeds, 
           components: [
             {
-              "type": 1,
-              "components": [
+              type: 1,
+              components: [
                 {
-                  "type": 2,
-                  "label": "TEST BUTTON",
-                  "style": 1,
-                  "custom_id": "test_button"
+                  type: 2,
+                  label: 'PREV',
+                  style: 1,
+                  custom_id: 'admin_list_prev',
+                  disabled: true
+                },
+                {
+                  type: 2,
+                  label: 'NEXT',
+                  style: 1,
+                  custom_id: 'admin_list_next'
                 }
               ]
             }

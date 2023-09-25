@@ -34,13 +34,15 @@ import { Buffer, constants } from 'node:buffer';
 
 // Create an express app
 const app = express();
+
 // Get port, or default to 3000
 const PORT = process.env.PORT || 3000;
+
 // Create a scheduler to handle scheduled events
 const require = createRequire(import.meta.url);
 const schedule = require('node-schedule');
+
 // Initializing Schedule Database
-// TODO: Move the Database to disk and make persistent
 const sqlite3 = require('sqlite3').verbose();
 const dbFile = 'scout.sqlite'
 const db = new sqlite3.Database(dbFile);
@@ -51,6 +53,11 @@ if (!dbExists) {
          + "channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL, "
          + "PRIMARY KEY (uuid))");
 }
+
+/* Application Constants */
+
+// The maximum number of items to display when a list is called
+const display_limit = 2;
 
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
@@ -129,6 +136,8 @@ app.post('/interactions', async function (req, res) {
     const custom_id = req.body.data.custom_id;
     console.log(`custom_id: ${custom_id}`);
     // const message = 
+    //
+    //
 
     return res.send({ 
       type: InteractionResponseType.UPDATE_MESSAGE,
