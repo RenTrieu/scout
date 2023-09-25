@@ -1,10 +1,11 @@
 import { InteractionResponseType } from "discord-interactions";
 
 export default async function adminListCommand(
-  req, res, db, display_limit=2
+  req, res, db, displayLimit=2
 ) {
   let sqlQuery = 'SELECT * FROM schedule';
   let sqlValues = {};
+  let rawValues = {};
 
   // Building the SQL query based off of the passed arguments
   if ('options' in req.body.data) {
@@ -19,6 +20,7 @@ export default async function adminListCommand(
       const userId = userArg[0].value;
       sqlQuery += ' user_id = $userId';
       Object.assign(sqlValues, { $userId: userId });
+      Object.assign(rawValues, { user_id: userId });
     }
     const guildArg = req.body.data.options.filter((arg) => {
       return arg.name == 'guild-id';
@@ -30,6 +32,7 @@ export default async function adminListCommand(
       const guildId = guildArg[0].value;
       sqlQuery += ' guild_id = $guildId';
       Object.assign(sqlValues, { $guildId: guildId });
+      Object.assign(rawValues, { guild_id: guildId });
     }
     const spiderArg = req.body.data.options.filter((arg) => {
       return arg.name == 'spider-name';
@@ -41,6 +44,7 @@ export default async function adminListCommand(
       const spiderName = spiderArg[0].value;
       sqlQuery += ' spider_name = $spiderName';
       Object.assign(sqlValues, { $spiderName: spiderName });
+      Object.assign(rawValues, { spider_name: spiderName });
     }
   }
 
@@ -63,20 +67,21 @@ export default async function adminListCommand(
       });
     }
     else {
-      const display_rows = rows.slice(0, display_limit);
-      var row_embeds = [];
+      const display_rows = rows.slice(0, displayLimit);
+
+      let row_embeds = [];
       row_embeds.push(
         {
-          title: `Result Page [0/${Math.ceil(rows.length/display_limit)}]`,
+          title: `Result Page [1/${Math.ceil(rows.length/displayLimit)}]`,
           type: 'rich',
-          description: `Query: ${sqlQuery}`,
+          description: `Query Options:\n${JSON.stringify(rawValues)}`,
         }
       )
-      var resultNum = 1;
+      let resultNum = 1;
       display_rows.forEach((row) => {
         row_embeds.push(
           {
-            title: `Result [${resultNum}/${display_limit}]`,
+            title: `Result [${resultNum}/${displayLimit}]`,
             type: 'rich',
             fields: [
               { name: 'UUID', 'value': row.uuid },
@@ -108,7 +113,8 @@ export default async function adminListCommand(
                   type: 2,
                   label: 'NEXT',
                   style: 1,
-                  custom_id: 'admin_list_next'
+                  custom_id: 'admin_list_next',
+                  disabled: false
                 }
               ]
             }

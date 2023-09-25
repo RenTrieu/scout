@@ -57,7 +57,7 @@ if (!dbExists) {
 /* Application Constants */
 
 // The maximum number of items to display when a list is called
-const display_limit = 2;
+const displayLimit = 2;
 
 // Parse request body and verifies incoming requests using discord-interactions package
 app.use(express.json({ verify: VerifyDiscordRequest(process.env.PUBLIC_KEY) }));
@@ -135,16 +135,103 @@ app.post('/interactions', async function (req, res) {
   if (type === InteractionType.MESSAGE_COMPONENT) {
     const custom_id = req.body.data.custom_id;
     console.log(`custom_id: ${custom_id}`);
-    // const message = 
-    //
-    //
 
-    return res.send({ 
-      type: InteractionResponseType.UPDATE_MESSAGE,
-      data: {
-        content: `custom_id: ${custom_id}`,
-      }
-    });
+    // Admin List Actions
+    if ((custom_id === 'admin_list_next') 
+        || (custom_id === 'admin_list_prev')) {
+
+      let headerEmbed = req.body.message.embeds[0];
+      const queryOptions = JSON.parse(headerEmbed.description.split('\n')[1]);
+
+      let sqlQuery = 'SELECT * FROM schedule';
+      const initial_len = sqlQuery.length;
+      Object.keys(queryOptions).forEach((option) => {
+        if (sqlQuery.length === initial_len) {
+          sqlQuery += ` WHERE ${option} = ${queryOptions[option]}`;
+        }
+        else {
+          sqlQuery += ` AND ${option} = ${queryOptions[option]}`;
+        }
+      });
+
+      const getSpiderRows = new Promise((resolve, reject) => {
+        db.all(sqlQuery,
+          function(_err, rows) {
+            resolve(rows);
+          }
+        );
+      });
+
+      getSpiderRows.then((rows) => {
+        let rowEmbeds = [];
+        let curPage = parseInt(
+          headerEmbed.title.split(' ')[2].split('/')[0].slice(1)
+        );
+
+        let displayRows;
+        if (custom_id === 'admin_list_next') {
+          curPage += 1;
+        }
+        else {
+          curPage -= 1;
+        }
+
+        displayRows = rows.slice(
+          Math.max((curPage - 1) * displayLimit, 0),
+          Math.min(curPage * displayLimit, rows.length)
+        );
+
+        let buttons = req.body.message.components[0].components;
+
+        let prevButton = buttons.find((button) => button.label == 'PREV');
+        let nextButton = buttons.find((button) => button.label == 'NEXT');
+        prevButton.disabled = curPage == 1 ? true : false;
+        nextButton.disabled = curPage == displayLimit ? true : false;
+
+        headerEmbed.title = 'Result Page '
+          + `[${curPage}/${Math.ceil(rows.length/displayLimit)}]`;
+        rowEmbeds.push(headerEmbed);
+
+        let resultNum = 1;
+        displayRows.forEach((row) => {
+          rowEmbeds.push(
+            {
+              title: `Result [${resultNum}/${displayLimit}]`,
+              type: 'rich',
+              fields: [
+                { name: 'UUID', 'value': row.uuid },
+                { name: 'Spider', 'value': row.spider_name },
+                { name: 'Guild', 'value': row.guild_id },
+                { name: 'Channel', 'value': row.channel_id },
+                { name: 'User', 'value': row.user_id }
+              ]
+            }
+          );
+          resultNum += 1;
+        });
+
+        return res.send({
+          type: InteractionResponseType.UPDATE_MESSAGE,
+          data: {
+            content: `update: ${sqlQuery}`,
+            embeds: rowEmbeds,
+            components: [
+              {
+                type: 1,
+                components: buttons 
+              }
+            ],
+          }
+        });
+      });
+    }
+
+    // return res.send({ 
+    //   type: InteractionResponseType.UPDATE_MESSAGE,
+    //   data: {
+    //     content: `custom_id: ${custom_id}`,
+    //   }
+    // });
   }
 
 });
