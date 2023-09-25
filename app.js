@@ -196,7 +196,7 @@ app.post('/interactions', async function (req, res) {
         displayRows.forEach((row) => {
           rowEmbeds.push(
             {
-              title: `Result [${resultNum}/${displayLimit}]`,
+              title: `Result [${resultNum}/${displayRows.length}]`,
               type: 'rich',
               fields: [
                 { name: 'UUID', 'value': row.uuid },
