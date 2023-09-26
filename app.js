@@ -99,7 +99,7 @@ app.post('/interactions', async function (req, res) {
 
     // List Scheduled Spiders command
     if (name === 'list') {
-      return listCommand(req, res, db);
+      return listCommand(req, res, db, displayLimit);
     }
 
     // "Schedule Spider" command

@@ -48,7 +48,6 @@ export default async function adminListCommand(
     }
   }
 
-
   const getSpiderRows = new Promise((resolve, reject) => {
     db.all(sqlQuery, sqlValues,
       function(_err, rows) {
@@ -66,7 +65,7 @@ export default async function adminListCommand(
         }
       });
     }
-    const display_rows = rows.slice(0, displayLimit);
+    const displayRows = rows.slice(0, displayLimit);
 
     let row_embeds = [];
     row_embeds.push(
@@ -77,7 +76,7 @@ export default async function adminListCommand(
       }
     )
     let resultNum = 1;
-    display_rows.forEach((row) => {
+    displayRows.forEach((row) => {
       row_embeds.push(
         {
           title: `Result [${resultNum}/${displayLimit}]`,
