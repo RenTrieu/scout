@@ -66,62 +66,60 @@ export default async function adminListCommand(
         }
       });
     }
-    else {
-      const display_rows = rows.slice(0, displayLimit);
+    const display_rows = rows.slice(0, displayLimit);
 
-      let row_embeds = [];
+    let row_embeds = [];
+    row_embeds.push(
+      {
+        title: `Result Page [1/${Math.ceil(rows.length/displayLimit)}]`,
+        type: 'rich',
+        description: `Query Options:\n${JSON.stringify(rawValues)}`,
+      }
+    )
+    let resultNum = 1;
+    display_rows.forEach((row) => {
       row_embeds.push(
         {
-          title: `Result Page [1/${Math.ceil(rows.length/displayLimit)}]`,
+          title: `Result [${resultNum}/${displayLimit}]`,
           type: 'rich',
-          description: `Query Options:\n${JSON.stringify(rawValues)}`,
+          fields: [
+            { name: 'UUID', 'value': row.uuid },
+            { name: 'Spider', 'value': row.spider_name },
+            { name: 'Guild', 'value': row.guild_id },
+            { name: 'Channel', 'value': row.channel_id },
+            { name: 'User', 'value': row.user_id }
+          ]
         }
-      )
-      let resultNum = 1;
-      display_rows.forEach((row) => {
-        row_embeds.push(
+      );
+      resultNum += 1;
+    });
+    return res.send({
+      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: {
+        embeds: row_embeds, 
+        components: [
           {
-            title: `Result [${resultNum}/${displayLimit}]`,
-            type: 'rich',
-            fields: [
-              { name: 'UUID', 'value': row.uuid },
-              { name: 'Spider', 'value': row.spider_name },
-              { name: 'Guild', 'value': row.guild_id },
-              { name: 'Channel', 'value': row.channel_id },
-              { name: 'User', 'value': row.user_id }
+            type: 1,
+            components: [
+              {
+                type: 2,
+                label: 'PREV',
+                style: 1,
+                custom_id: 'admin_list_prev',
+                disabled: true
+              },
+              {
+                type: 2,
+                label: 'NEXT',
+                style: 1,
+                custom_id: 'admin_list_next',
+                disabled: false
+              }
             ]
           }
-        );
-        resultNum += 1;
-      });
-      return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          embeds: row_embeds, 
-          components: [
-            {
-              type: 1,
-              components: [
-                {
-                  type: 2,
-                  label: 'PREV',
-                  style: 1,
-                  custom_id: 'admin_list_prev',
-                  disabled: true
-                },
-                {
-                  type: 2,
-                  label: 'NEXT',
-                  style: 1,
-                  custom_id: 'admin_list_next',
-                  disabled: false
-                }
-              ]
-            }
-          ]
-        },
-      });
-    }
+        ]
+      },
+    });
   });
 }
 
