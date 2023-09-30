@@ -1,5 +1,8 @@
 import { InteractionResponseType } from "discord-interactions";
-import { getUserSpiders } from '../spider_manager.js';
+import {
+  getUserSpiders,
+  genPagedList,
+} from '../spider_manager.js';
 
 export default async function listCommand(
   req, res, db, displayLimit=2
@@ -60,14 +63,14 @@ export default async function listCommand(
               type: 2,
               label: 'PREV',
               style: 1,
-              custom_id: 'admin_list_prev',
+              custom_id: 'list_prev',
               disabled: true
             },
             {
               type: 2,
               label: 'NEXT',
               style: 1,
-              custom_id: 'admin_list_next',
+              custom_id: 'list_next',
               disabled: false
             }
           ]
@@ -77,22 +80,60 @@ export default async function listCommand(
   });
 }
 
-export async function listInteractions(
+export async function listInteraction(
   req, res, db, displayLimit=2
 ) {
-  const rowEmbeds = [];
-  const buttons = [];
-  return res.send({
-    type: InteractionResponseType.UPDATE_MESSAGE,
-    data: {
-      content: `update:`,
-      embeds: rowEmbeds,
-      components: [
+  const headerEmbed = req.body.message.embeds[0];
+  const userId = req.body.member.user.id;
+
+  const sqlQuery = 'SELECT * FROM schedule WHERE user_id = $userId';
+  const getSpiderRows = new Promise((resolve, reject) => {
+    db.all(sqlQuery, { $userId: userId },
+      function(_err, rows) {
+        resolve(rows);
+      }
+    );
+  });
+
+  getSpiderRows.then((rows) => {
+    let rowEmbeds = [];
+    const {curPage, buttons, displayRows} = genPagedList(
+      req, rows, displayLimit, 'list_prev', 'list_next'
+    );
+    headerEmbed.title = 'Result Page '
+      + `[${curPage}/${Math.ceil(rows.length/displayLimit)}]`;
+    rowEmbeds.push(headerEmbed);
+
+    let resultNum = 1;
+    displayRows.forEach((row) => {
+      rowEmbeds.push(
         {
-          type: 1,
-          components: buttons 
+          title: `Result [${resultNum}/${displayRows.length}]`,
+          type: 'rich',
+          fields: [
+            { name: 'UUID', 'value': row.uuid },
+            { name: 'Spider', 'value': row.spider_name },
+            { name: 'Guild', 'value': row.guild_id },
+            { name: 'Channel', 'value': row.channel_id },
+            { name: 'User', 'value': row.user_id }
+          ]
         }
-      ],
-    }
+      );
+      resultNum += 1;
+    });
+
+    return res.send({
+      type: InteractionResponseType.UPDATE_MESSAGE,
+      data: {
+        content: `update: ${sqlQuery}`,
+        embeds: rowEmbeds,
+        components: [
+          {
+            type: 1,
+            components: buttons 
+          }
+        ],
+      }
+    });
   });
 }

@@ -20,6 +20,7 @@ import {
   callCommand,
   testCommand,
   listCommand,
+  listInteraction,
   scheduleCommand,
   removeCommand,
 } from './app_commands/index.js';
@@ -140,6 +141,12 @@ app.post('/interactions', async function (req, res) {
     if ((custom_id === 'admin_list_next') 
         || (custom_id === 'admin_list_prev')) {
       await adminListInteraction(req, res, db, displayLimit);
+    }
+
+    // List Interactions
+    if ((custom_id === 'list_next')
+        || (custom_id === 'list_prev')) {
+      await listInteraction(req, res, db, displayLimit);
     }
 
     // return res.send({ 
