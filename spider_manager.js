@@ -17,7 +17,7 @@ import * as fs from 'node:fs';
  * Returns results as a String containing either spider results or error
  * message
  */
-export function diffParse(spiderName) {
+export function diffParse(spiderName, userId) {
   const activeSpiders = getAvailableSpiders().map((obj) => obj.value);
   let prevOutput;
   if (activeSpiders.includes(spiderName)) {
@@ -53,42 +53,79 @@ export function diffParse(spiderName) {
 
     if (typeof prevOutput === "undefined" ) {
       // If there was no previous output, return the Spider output
-      return `No previous results for spider "${spiderName}". `
-             + `Current results: ${output}`
+      return {
+        title: `${spiderName} Results`,
+        description: `<@${userId}>`,
+        type: 'rich',
+        fields: [
+          { name: 'Status', value: 'No previous results' },
+          { name: 'New Keys', value: output }
+        ]
+      }
     }
     // Otherwise, only report differences between the previous and 
     // current output
     else if (prevOutput === output) {
-      return `No change in the output of spider "${spiderName}"`;
+      return {
+        title: `${spiderName} Results`,
+        description: `<@${userId}>`,
+        type: 'rich',
+        fields: [
+          { name: 'Status', value: 'No change' }
+        ]
+      }
     }
     else {
-      let prevObj = JSON.parse(prevOutput).map((el) => {
+      const prevObj = JSON.parse(prevOutput).map((el) => {
         return JSON.stringify(el);
       });
-      let curObj = JSON.parse(output).map((el) => {
+      const curObj = JSON.parse(output).map((el) => {
         return JSON.stringify(el);
       });
       // Looking for changes between previous and current outputs
       // console.log(`typeof prevObj: ${typeof prevObj}`);
-      let removedSet = prevObj.filter((el) => !curObj.includes(el));
-      let addedSet = curObj.filter((el) => !prevObj.includes(el));
+      const removedSet = prevObj.filter((el) => !curObj.includes(el));
+      const removedStr = removedSet.map((el) => {
+        const elObj = JSON.parse(el);
+        return `- ${Object.values(elObj)}\n`
+      }).join('\n');
 
-      let contentStr = 'Removed Keys:\n' 
-        + removedSet.map((el) => {
-          const elObj = JSON.parse(el);
-          return `${Object.values(elObj)}\n`
-        }) + '\n'
-        + 'Added Keys:\n'
-        + addedSet.map((el) => {
-          const elObj = JSON.parse(el);
-          return `${Object.values(elObj)}\n`
-        });
-      console.log(`contentStr: ${contentStr}`);
-      return contentStr;
+      const addedSet = curObj.filter((el) => !prevObj.includes(el));
+      const addedStr = addedSet.map((el) => {
+        const elObj = JSON.parse(el);
+        return `+ ${Object.values(elObj)}`
+      }).join('\n');
+
+      console.log(`removedStr: ${removedStr}`);
+
+      const diffEmbed = {
+        title: `${spiderName} Results`,
+        description: `<@${userId}>`,
+        type: 'rich',
+        fields: [
+          { name: 'Status', value: 'Site updated' },
+          { 
+            name: 'Removed Keys',
+            value: removedStr
+          },
+          {
+            name: 'Added Keys',
+            value: addedStr
+          }
+        ]
+      }
+      return diffEmbed;
     }
   }
   else {
-    return `Spider "${spiderName}" does not exist.`;
+    return {
+      title: `${spiderName} Results`,
+      description: `<@${userId}>`,
+      type: 'rich',
+      fields: [
+        { name: 'Status', value: 'Not Found' }
+      ]
+    }
   }
 }
 
@@ -194,11 +231,11 @@ export function genSpiderEmbed(row, title) {
     title: title,
     type: 'rich',
     fields: [
-      { name: 'UUID', 'value': row.uuid },
-      { name: 'Spider', 'value': row.spider_name },
-      { name: 'Guild', 'value': row.guild_id },
-      { name: 'Channel', 'value': row.channel_id },
-      { name: 'User', 'value': row.user_id }
+      { name: 'UUID', value: row.uuid },
+      { name: 'Spider', value: row.spider_name },
+      { name: 'Guild', value: row.guild_id },
+      { name: 'Channel', value: row.channel_id },
+      { name: 'User', value: row.user_id }
     ]
   }
 }

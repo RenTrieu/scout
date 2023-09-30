@@ -163,7 +163,7 @@ app.post('/interactions', async function (req, res) {
  * Runs scheduled spiders at a regular interval
  */
 const rule = new schedule.RecurrenceRule();
-rule.minute = 59;
+rule.minute = 23;
 const job = schedule.scheduleJob(rule, function() {
   let userSetPromise = getActiveUsers(db);
   
@@ -175,19 +175,16 @@ const job = schedule.scheduleJob(rule, function() {
 
       userSpidersPromise.then((userSpiders) => {
         // Running spiders for each user
-        for (const i in userSpiders) {
-          const spider = userSpiders[i];
+        userSpiders.forEach((spider) => {
           const channelId = spider.channel_id;
           const spiderName = spider.spider_name;
 
           const endpoint = `channels/${channelId}/messages`
           let requestPromise = new Promise((resolve, reject) => {
-            const spiderResult = `<@${userId}> ${spiderName} results:\n`
-                                 + diffParse(spiderName);
-            DiscordRequest(endpoint, { 
-              method: 'POST', 
-              body: { 
-                content: spiderResult,
+            DiscordRequest(endpoint, {
+              method: 'POST',
+              body: {
+                embeds: [diffParse(spiderName, userId)],
                 allowed_mentions: {
                   "users": [userId]
                 }
@@ -195,9 +192,8 @@ const job = schedule.scheduleJob(rule, function() {
             })
           });
           requestPromise.then();
-        }
+        });
       });
-
     });
   });
   console.log('schedule test');
