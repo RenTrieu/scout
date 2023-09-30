@@ -1,5 +1,8 @@
 import { InteractionResponseType } from "discord-interactions";
-import { genPagedList } from "../spider_manager.js";
+import { 
+  genPagedList,
+  genSpiderEmbed,
+} from "../spider_manager.js";
 
 export default async function adminListCommand(
   req, res, db, displayLimit=2
@@ -160,17 +163,7 @@ export async function adminListInteraction(
     let resultNum = 1;
     displayRows.forEach((row) => {
       rowEmbeds.push(
-        {
-          title: `Result [${resultNum}/${displayRows.length}]`,
-          type: 'rich',
-          fields: [
-            { name: 'UUID', 'value': row.uuid },
-            { name: 'Spider', 'value': row.spider_name },
-            { name: 'Guild', 'value': row.guild_id },
-            { name: 'Channel', 'value': row.channel_id },
-            { name: 'User', 'value': row.user_id }
-          ]
-        }
+        genSpiderEmbed(row, `Result [${resultNum}/${displayRows.length}]`)
       );
       resultNum += 1;
     });

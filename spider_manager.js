@@ -185,3 +185,20 @@ export function genPagedList(req, rows, displayLimit, prevId, nextId) {
 
   return {curPage, buttons, displayRows};
 }
+
+/*
+ * Takes in a spider database row and returns a pretty embed
+ */
+export function genSpiderEmbed(row, title) {
+  return {
+    title: title,
+    type: 'rich',
+    fields: [
+      { name: 'UUID', 'value': row.uuid },
+      { name: 'Spider', 'value': row.spider_name },
+      { name: 'Guild', 'value': row.guild_id },
+      { name: 'Channel', 'value': row.channel_id },
+      { name: 'User', 'value': row.user_id }
+    ]
+  }
+}

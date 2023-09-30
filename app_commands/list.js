@@ -2,6 +2,7 @@ import { InteractionResponseType } from "discord-interactions";
 import {
   getUserSpiders,
   genPagedList,
+  genSpiderEmbed,
 } from '../spider_manager.js';
 
 export default async function listCommand(
@@ -107,17 +108,7 @@ export async function listInteraction(
     let resultNum = 1;
     displayRows.forEach((row) => {
       rowEmbeds.push(
-        {
-          title: `Result [${resultNum}/${displayRows.length}]`,
-          type: 'rich',
-          fields: [
-            { name: 'UUID', 'value': row.uuid },
-            { name: 'Spider', 'value': row.spider_name },
-            { name: 'Guild', 'value': row.guild_id },
-            { name: 'Channel', 'value': row.channel_id },
-            { name: 'User', 'value': row.user_id }
-          ]
-        }
+        genSpiderEmbed(row, `Result [${resultNum}/${displayRows.length}]`)
       );
       resultNum += 1;
     });
@@ -125,7 +116,6 @@ export async function listInteraction(
     return res.send({
       type: InteractionResponseType.UPDATE_MESSAGE,
       data: {
-        content: `update: ${sqlQuery}`,
         embeds: rowEmbeds,
         components: [
           {
