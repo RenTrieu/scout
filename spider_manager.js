@@ -153,3 +153,35 @@ export async function checkSpider(db, userId, channelId, spiderName) {
   return getSpiderRow;
 }
 
+/*
+ * Helper method that splits rows into pages,
+ * then returns the current page number, updated buttons, and updated page rows
+ */
+export function genPagedList(req, rows, displayLimit, prevId, nextId) {
+  const custom_id = req.body.data.custom_id;
+  const headerEmbed = req.body.message.embeds[0];
+
+  let curPage = parseInt(
+      headerEmbed.title.split(' ')[2].split('/')[0].slice(1)
+  );
+  if (custom_id === nextId) {
+    curPage += 1;
+  }
+  else if (custom_id === prevId) {
+    curPage -= 1;
+  }
+
+  const displayRows = rows.slice(
+    Math.max((curPage - 1) * displayLimit, 0),
+    Math.min(curPage * displayLimit, rows.length)
+  );
+
+  let buttons = req.body.message.components[0].components;
+
+  let prevButton = buttons.find((button) => button.label == 'PREV');
+  let nextButton = buttons.find((button) => button.label == 'NEXT');
+  prevButton.disabled = curPage == 1 ? true : false;
+  nextButton.disabled = curPage == displayLimit ? true : false;
+
+  return {curPage, buttons, displayRows};
+}

@@ -1,4 +1,5 @@
 import { InteractionResponseType } from "discord-interactions";
+import { genPagedList } from "../spider_manager.js";
 
 export default async function adminListCommand(
   req, res, db, displayLimit=2
@@ -125,8 +126,7 @@ export default async function adminListCommand(
 export async function adminListInteraction(
   req, res, db, displayLimit=2
 ) {
-  const custom_id = req.body.data.custom_id;
-  let headerEmbed = req.body.message.embeds[0];
+  const headerEmbed = req.body.message.embeds[0];
   const queryOptions = JSON.parse(headerEmbed.description.split('\n')[1]);
 
   let sqlQuery = 'SELECT * FROM schedule';
@@ -150,30 +150,9 @@ export async function adminListInteraction(
 
   getSpiderRows.then((rows) => {
     let rowEmbeds = [];
-    let curPage = parseInt(
-      headerEmbed.title.split(' ')[2].split('/')[0].slice(1)
+    const {curPage, buttons, displayRows} = genPagedList(
+      req, rows, displayLimit, 'admin_list_prev', 'admin_list_next'
     );
-
-    let displayRows;
-    if (custom_id === 'admin_list_next') {
-      curPage += 1;
-    }
-    else {
-      curPage -= 1;
-    }
-
-    displayRows = rows.slice(
-      Math.max((curPage - 1) * displayLimit, 0),
-      Math.min(curPage * displayLimit, rows.length)
-    );
-
-    let buttons = req.body.message.components[0].components;
-
-    let prevButton = buttons.find((button) => button.label == 'PREV');
-    let nextButton = buttons.find((button) => button.label == 'NEXT');
-    prevButton.disabled = curPage == 1 ? true : false;
-    nextButton.disabled = curPage == displayLimit ? true : false;
-
     headerEmbed.title = 'Result Page '
       + `[${curPage}/${Math.ceil(rows.length/displayLimit)}]`;
     rowEmbeds.push(headerEmbed);

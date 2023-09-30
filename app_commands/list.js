@@ -51,7 +51,48 @@ export default async function listCommand(
       embeds: row_embeds,
       allowed_mentions: {
         "users": [userId]
-      }
+      },
+      components: [
+        {
+          type: 1,
+          components: [
+            {
+              type: 2,
+              label: 'PREV',
+              style: 1,
+              custom_id: 'admin_list_prev',
+              disabled: true
+            },
+            {
+              type: 2,
+              label: 'NEXT',
+              style: 1,
+              custom_id: 'admin_list_next',
+              disabled: false
+            }
+          ]
+        }
+      ]
+    }
+  });
+}
+
+export async function listInteractions(
+  req, res, db, displayLimit=2
+) {
+  const rowEmbeds = [];
+  const buttons = [];
+  return res.send({
+    type: InteractionResponseType.UPDATE_MESSAGE,
+    data: {
+      content: `update:`,
+      embeds: rowEmbeds,
+      components: [
+        {
+          type: 1,
+          components: buttons 
+        }
+      ],
     }
   });
 }
