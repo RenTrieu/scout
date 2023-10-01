@@ -227,7 +227,12 @@ export function genPagedList(req, rows, displayLimit, prevId, nextId) {
   let prevButton = buttons.find((button) => button.label == 'PREV');
   let nextButton = buttons.find((button) => button.label == 'NEXT');
   prevButton.disabled = curPage == 1 ? true : false;
-  nextButton.disabled = curPage == displayLimit ? true : false;
+  if ((curPage == displayLimit) || (rows.length < displayLimit)) {
+    nextButton.disabled = true;
+  }
+  else {
+    nextButton.disabled = false;
+  }
 
   return {curPage, buttons, displayRows};
 }

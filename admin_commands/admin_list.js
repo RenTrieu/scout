@@ -81,9 +81,10 @@ export default async function adminListCommand(
     )
     let resultNum = 1;
     displayRows.forEach((row) => {
+      const pageTotal = Math.min(displayLimit, rows.length);
       row_embeds.push(
         {
-          title: `Result [${resultNum}/${displayLimit}]`,
+          title: `Result [${resultNum}/${pageTotal}]`,
           type: 'rich',
           fields: [
             { name: 'UUID', 'value': row.uuid },
@@ -116,7 +117,7 @@ export default async function adminListCommand(
                 label: 'NEXT',
                 style: 1,
                 custom_id: 'admin_list_next',
-                disabled: false
+                disabled: rows.length <= displayLimit ? true : false
               }
             ]
           }

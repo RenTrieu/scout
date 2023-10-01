@@ -33,9 +33,10 @@ export default async function listCommand(
   )
   let resultNum = 1;
   displayRows.forEach((row) => {
+    const pageTotal = Math.min(displayLimit, userSpiders.length);
     row_embeds.push(
       {
-        title: `Result [${resultNum}/${displayLimit}]`,
+        title: `Result [${resultNum}/${pageTotal}]`,
         type: 'rich',
         fields: [
           { name: 'UUID', 'value': row.uuid },
@@ -72,7 +73,7 @@ export default async function listCommand(
               label: 'NEXT',
               style: 1,
               custom_id: 'list_next',
-              disabled: false
+              disabled: userSpiders.length <= displayLimit ? true : false
             }
           ]
         }
