@@ -14,6 +14,7 @@ import {
 import {
   diffParse,
   getActiveUsers,
+  getActiveSpiders,
   getUserSpiders,
 } from './spider_manager.js';
 import {
@@ -163,40 +164,43 @@ app.post('/interactions', async function (req, res) {
  * Runs scheduled spiders at a regular interval
  */
 const rule = new schedule.RecurrenceRule();
-rule.minute = 23;
+rule.minute = 41;
 const job = schedule.scheduleJob(rule, function() {
-  let userSetPromise = getActiveUsers(db);
-  
-  userSetPromise.then((userSet) => {
-    // Iterating through each user in the database
-    userSet.forEach((userId) => {
-      console.log(`Running spiders for user: ${userId}`);
-      const userSpidersPromise = getUserSpiders(db, userId);
+  const activeSpidersPromise = getActiveSpiders(db);
+  activeSpidersPromise.then((spidersSet) => {
+    spidersSet.forEach((spider) => {
+      const diffEmbed = diffParse(spider);
+      const allRowsPromise = new Promise((resolve, reject) => {
+        db.all(
+          'SELECT * FROM schedule',
+          function(_err, rows) {
+            resolve(rows)
+          }
+        );
+      });
+      allRowsPromise.then((rows) => {
+        rows.forEach((row) => {
+          const userId = row.user_id;
+          const channelId = row.channel_id;
 
-      userSpidersPromise.then((userSpiders) => {
-        // Running spiders for each user
-        userSpiders.forEach((spider) => {
-          const channelId = spider.channel_id;
-          const spiderName = spider.spider_name;
-
-          const endpoint = `channels/${channelId}/messages`
-          let requestPromise = new Promise((resolve, reject) => {
+          const endpoint = `channels/${channelId}/messages`;
+          diffEmbed.description = `<@${userId}>`;
+          const requestPromise = new Promise((_resolve, _reject) => {
             DiscordRequest(endpoint, {
               method: 'POST',
               body: {
-                embeds: [diffParse(spiderName, userId)],
+                embeds : [diffEmbed],
                 allowed_mentions: {
                   "users": [userId]
                 }
               }
-            })
+            });
           });
           requestPromise.then();
         });
       });
     });
   });
-  console.log('schedule test');
 });
 
 app.listen(PORT, () => {

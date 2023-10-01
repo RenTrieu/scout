@@ -1,11 +1,7 @@
 import 'dotenv/config';
 import {
-  InteractionResponseType,
-} from 'discord-interactions';
-import {
   unixCommandSync,
   getAvailableSpiders,
-  DiscordRequest
 } from './utils.js';
 import * as fs from 'node:fs';
 
@@ -17,7 +13,7 @@ import * as fs from 'node:fs';
  * Returns results as a String containing either spider results or error
  * message
  */
-export function diffParse(spiderName, userId) {
+export function diffParse(spiderName) {
   const activeSpiders = getAvailableSpiders().map((obj) => obj.value);
   let prevOutput;
   if (activeSpiders.includes(spiderName)) {
@@ -55,7 +51,6 @@ export function diffParse(spiderName, userId) {
       // If there was no previous output, return the Spider output
       return {
         title: `${spiderName} Results`,
-        description: `<@${userId}>`,
         type: 'rich',
         fields: [
           { name: 'Status', value: 'No previous results' },
@@ -68,7 +63,6 @@ export function diffParse(spiderName, userId) {
     else if (prevOutput === output) {
       return {
         title: `${spiderName} Results`,
-        description: `<@${userId}>`,
         type: 'rich',
         fields: [
           { name: 'Status', value: 'No change' }
@@ -83,7 +77,6 @@ export function diffParse(spiderName, userId) {
         return JSON.stringify(el);
       });
       // Looking for changes between previous and current outputs
-      // console.log(`typeof prevObj: ${typeof prevObj}`);
       const removedSet = prevObj.filter((el) => !curObj.includes(el));
       const removedStr = removedSet.map((el) => {
         const elObj = JSON.parse(el);
@@ -96,11 +89,8 @@ export function diffParse(spiderName, userId) {
         return `+ ${Object.values(elObj)}`
       }).join('\n');
 
-      console.log(`removedStr: ${removedStr}`);
-
       const diffEmbed = {
         title: `${spiderName} Results`,
-        description: `<@${userId}>`,
         type: 'rich',
         fields: [
           { name: 'Status', value: 'Site updated' },
@@ -120,7 +110,6 @@ export function diffParse(spiderName, userId) {
   else {
     return {
       title: `${spiderName} Results`,
-      description: `<@${userId}>`,
       type: 'rich',
       fields: [
         { name: 'Status', value: 'Not Found' }
@@ -130,18 +119,38 @@ export function diffParse(spiderName, userId) {
 }
 
 /*
+ * Iterates through the database and returns a Promise that resolves to a
+ * Set() containing all active spiders
+ */
+export async function getActiveSpiders(db) {
+  const getActiveSpiders = new Promise((resolve, reject) => {
+    db.all(
+      'SELECT spider_name FROM schedule',
+      function(_err, rows) {
+        const spiderSet = new Set();
+        rows.forEach((row) => {
+          spiderSet.add(row.spider_name);
+        });
+        resolve(spiderSet)
+      }
+    );
+  });
+  return getActiveSpiders;
+}
+
+/*
  * Iterates through the database and returns a Promise that resolves to a 
  * Set() containing all users that have active spiders
  */
 export async function getActiveUsers(db) {
-  let getUserSet = new Promise((resolve, reject) => {
+  const getUserSet = new Promise((resolve, reject) => {
     db.all(
       'SELECT user_id FROM schedule',
       function(_err, rows) {
         const userSet = new Set();
-        for (const i in rows) {
-          userSet.add(rows[i].user_id);
-        }
+        userSet.forEach((row) => {
+          userSet.add(row.user_id);
+        });
         resolve(userSet)
       })
     }
