@@ -80,7 +80,7 @@ export function diffParse(spiderName) {
       const removedSet = prevObj.filter((el) => !curObj.includes(el));
       const removedStr = removedSet.map((el) => {
         const elObj = JSON.parse(el);
-        return `- ${Object.values(elObj)}\n`
+        return `\\- ${Object.values(elObj)}\n`
       }).join('\n');
 
       const addedSet = curObj.filter((el) => !prevObj.includes(el));
