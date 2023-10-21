@@ -1,0 +1,14 @@
+services:
+  app:
+    image: debian:latest
+    container_name: scout
+    environment:
+      APP_ID: ${APP_ID}
+      DISCORD_TOKEN: ${DISCORD_TOKEN}
+      PUBLIC_KEY: ${PUBLIC_KEY}
+    build: ./src
+    command: ["node", "app.js"]
+    ports:
+      - "127.0.0.1:3000:3000"
+    expose:
+      - "3000"

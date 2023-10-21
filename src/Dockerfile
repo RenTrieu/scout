@@ -1,5 +1,5 @@
 FROM debian:latest
-WORKDIR /app
+WORKDIR /src
 COPY . .
 SHELL ["/bin/bash", "-c"]
 
