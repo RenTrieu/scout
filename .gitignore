@@ -7,3 +7,4 @@ spider_output/
 spider_output/*
 *.sqlite
 *.db
+ngrok.yml
