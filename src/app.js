@@ -57,6 +57,18 @@ if (!dbExists) {
          + "PRIMARY KEY (uuid))");
 }
 
+import pg from 'pg';
+const client = new pg.Client({
+  user: process.env.POSTGRES_USER,
+  host: process.env.DATABASE_ALIAS,
+  database: process.env.POSTGRES_DB,
+  password: process.env.POSTGRES_PASSWORD,
+  port: process.env.POSTGRES_PORT,
+})
+//const client = new pg.Client();
+
+await client.connect();
+
 /* Application Constants */
 
 // The maximum number of items to display when a list is called
