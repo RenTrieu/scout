@@ -16,7 +16,9 @@ services:
     networks:
       - scout-net
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
   ngrok:
     image: ngrok/ngrok:latest
     restart: unless-stopped
@@ -56,5 +58,12 @@ services:
       scout-net:
         aliases:
           - ${DATABASE_ALIAS}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+      start_interval: 5s
 networks:
   scout-net:
