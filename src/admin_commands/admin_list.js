@@ -5,57 +5,61 @@ import {
 } from "../spider_manager.js";
 
 export default async function adminListCommand(
-  req, res, db, displayLimit=2
+  req, res, pool, displayLimit=2
 ) {
   let sqlQuery = 'SELECT * FROM schedule';
-  let sqlValues = {};
+  let sqlValues = [];
   let rawValues = {};
 
   // Building the SQL query based off of the passed arguments
   if ('options' in req.body.data) {
+    let optionIndex = 0;
     sqlQuery += ' WHERE';
     const userArg = req.body.data.options.filter((arg) => {
       return arg.name == 'user-id';
     });
     if (userArg.length > 0) {
-      if (Object.keys(sqlValues).length > 0) {
+      optionIndex += 1;
+      if (sqlValues.length > 0) {
         sqlQuery += ' AND';
       }
       const userId = userArg[0].value;
-      sqlQuery += ' user_id = $userId';
-      Object.assign(sqlValues, { $userId: userId });
+      sqlQuery += ` user_id = $${optionIndex}`;
+      sqlValues.push(userId);
       Object.assign(rawValues, { user_id: userId });
     }
     const guildArg = req.body.data.options.filter((arg) => {
       return arg.name == 'guild-id';
     });
     if (guildArg.length > 0) {
-      if (Object.keys(sqlValues).length > 0) {
+      optionIndex += 1;
+      if (sqlValues.length > 0) {
         sqlQuery += ' AND';
       }
       const guildId = guildArg[0].value;
-      sqlQuery += ' guild_id = $guildId';
-      Object.assign(sqlValues, { $guildId: guildId });
+      sqlQuery += ` guild_id = $${optionIndex}`;
+      sqlValues.push(guildId);
       Object.assign(rawValues, { guild_id: guildId });
     }
     const spiderArg = req.body.data.options.filter((arg) => {
       return arg.name == 'spider-name';
     });
     if (spiderArg.length > 0) {
-      if (Object.keys(sqlValues).length > 0) {
+      optionIndex += 1;
+      if (sqlValues.length > 0) {
         sqlQuery += ' AND';
       }
       const spiderName = spiderArg[0].value;
-      sqlQuery += ' spider_name = $spiderName';
-      Object.assign(sqlValues, { $spiderName: spiderName });
+      sqlQuery += ` spider_name = $${optionIndex}`;
+      sqlValues.push(spiderName);
       Object.assign(rawValues, { spider_name: spiderName });
     }
   }
 
   const getSpiderRows = new Promise((resolve, reject) => {
-    db.all(sqlQuery, sqlValues,
-      function(_err, rows) {
-        resolve(rows);
+    pool.query(sqlQuery, sqlValues,
+      function(_err, result) {
+        resolve(result.rows);
       }
     );
   });
@@ -128,7 +132,7 @@ export default async function adminListCommand(
 }
 
 export async function adminListInteraction(
-  req, res, db, displayLimit=2
+  req, res, pool, displayLimit=2
 ) {
   const headerEmbed = req.body.message.embeds[0];
   const queryOptions = JSON.parse(headerEmbed.description.split('\n')[1]);
@@ -145,9 +149,9 @@ export async function adminListInteraction(
   });
 
   const getSpiderRows = new Promise((resolve, reject) => {
-    db.all(sqlQuery,
-      function(_err, rows) {
-        resolve(rows);
+    pool.query(sqlQuery,
+      function(_err, result) {
+        resolve(result.rows);
       }
     );
   });

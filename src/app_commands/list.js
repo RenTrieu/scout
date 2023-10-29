@@ -92,7 +92,6 @@ export async function listInteraction(
   const getSpiderRows = new Promise((resolve, reject) => {
     pool.query(sqlQuery, [userId],
       function(_err, result) {
-        console.log(_err);
         resolve(result.rows);
       }
     );

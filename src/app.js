@@ -133,24 +133,24 @@ app.post('/interactions', async function (req, res) {
 
     // Remove Spider command
     if (name === 'remove') {
-      return removeCommand(req, res, db);
+      return removeCommand(req, res, pool);
     }
 
     /* Admin Commands */
 
     // Admin List command
     if (name === 'admin_list') {
-      return adminListCommand(req, res, db);
+      return adminListCommand(req, res, pool);
     }
 
     // Admin Remove command
     if (name == 'admin_remove') {
-      return adminRemoveCommand(req, res, db);
+      return adminRemoveCommand(req, res, pool);
     }
 
     // Admin Schedule command
     if (name == 'admin_schedule') {
-      return adminScheduleCommand(req, res, db);
+      return adminScheduleCommand(req, res, pool);
     }
   }
 
@@ -163,7 +163,7 @@ app.post('/interactions', async function (req, res) {
     // Admin List Interactions
     if ((custom_id === 'admin_list_next') 
         || (custom_id === 'admin_list_prev')) {
-      await adminListInteraction(req, res, db, displayLimit);
+      await adminListInteraction(req, res, pool, displayLimit);
     }
 
     // List Interactions
@@ -172,12 +172,6 @@ app.post('/interactions', async function (req, res) {
       await listInteraction(req, res, pool, displayLimit);
     }
 
-    // return res.send({ 
-    //   type: InteractionResponseType.UPDATE_MESSAGE,
-    //   data: {
-    //     content: `custom_id: ${custom_id}`,
-    //   }
-    // });
   }
 
 });

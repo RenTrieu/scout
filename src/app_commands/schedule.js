@@ -24,13 +24,11 @@ export default async function scheduleCommand(req, res, pool) {
   const uuid = await genUUID(pool);
 
   const client = await pool.connect();
-  await client.query('BEGIN');
   client.query(
     'INSERT INTO schedule (uuid, user_id, channel_id, guild_id, spider_name) '
     + 'VALUES ($1, $2, $3, $4, $5)',
     [uuid, user_id, channel_id, guild_id, spider_name],
     function() {
-      client.release();
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
@@ -43,4 +41,5 @@ export default async function scheduleCommand(req, res, pool) {
       });
     }
   );
+  await client.end();
 }
