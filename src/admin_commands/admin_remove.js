@@ -12,8 +12,6 @@ export default async function adminRemoveCommand(req, res, pool) {
     );
   });
   const row = await getRow;
-  console.log('row');
-  console.log(row)
   if (typeof row === 'undefined') {
     return res.send({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -27,8 +25,6 @@ export default async function adminRemoveCommand(req, res, pool) {
     'DELETE FROM schedule WHERE uuid=$1',
     [uuid],
     function(result) {
-      console.log('result');
-      console.log(result);
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {
