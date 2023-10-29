@@ -58,16 +58,24 @@ if (!dbExists) {
 }
 
 import pg from 'pg';
-const client = new pg.Client({
+const pool = new pg.Pool({
   user: process.env.POSTGRES_USER,
   host: process.env.DATABASE_ALIAS,
   database: process.env.POSTGRES_DB,
   password: process.env.POSTGRES_PASSWORD,
   port: process.env.POSTGRES_PORT,
+  max: 10,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
 })
-//const client = new pg.Client();
 
-await client.connect();
+const initClient = await pool.connect();
+await initClient.query('CREATE TABLE IF NOT EXISTS schedule '
+   + '(uuid VARCHAR NOT NULL, '
+   + 'guild_id VARCHAR NOT NULL, user_id VARCHAR NOT NULL, '
+   + 'channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL, '
+   + 'PRIMARY KEY (uuid))');
+initClient.end();
 
 /* Application Constants */
 
@@ -118,7 +126,7 @@ app.post('/interactions', async function (req, res) {
 
     // "Schedule Spider" command
     if (name === 'schedule') {
-      return scheduleCommand(req, res, db);
+      return scheduleCommand(req, res, pool);
     }
 
     // Remove Spider command

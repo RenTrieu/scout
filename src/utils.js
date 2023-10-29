@@ -115,13 +115,13 @@ export function getAvailableSpiders() {
  * UUID exists and returns a Promise that resolves to true if it exists in
  * the database
  */
-export async function checkUUID(db, uuid) {
+export async function checkUUID(pool, uuid) {
   let row = new Promise((resolve, reject) => {
-    db.all(
-      `SELECT * FROM schedule WHERE uuid=$uuid`,
-      { $uuid: uuid },
-      function(_err, rows) {
-        if (rows.length > 0) {
+    pool.query(
+      `SELECT * FROM schedule WHERE uuid=$1`,
+      [uuid],
+      function(_err, res) {
+        if (res.rows.length > 0) {
           resolve(true);
         }
         else {
@@ -136,12 +136,12 @@ export async function checkUUID(db, uuid) {
 /*
  * Helper method that generates a UUID that does not exist in the database
  */
-export async function genUUID(db) {
+export async function genUUID(pool) {
   let uuidExists = true;
   let uuid;
   do {
     uuid = crypto.randomUUID();
-    uuidExists = await checkUUID(db, uuid);
+    uuidExists = await checkUUID(pool, uuid);
   }
   while (uuidExists);
   return uuid;

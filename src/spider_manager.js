@@ -180,14 +180,15 @@ export async function getUserSpiders(db, userId) {
  * Queries the database for a specific Spider Schedule and returns a Promise 
  * that resolves to true if it exists in the database
  */
-export async function checkSpider(db, userId, channelId, spiderName) {
+export async function checkSpider(pool, userId, channelId, spiderName) {
   let getSpiderRow = new Promise((resolve, reject) => {
-    db.all(
-      `SELECT * FROM schedule WHERE user_id=$user_id AND `
-      + `channel_id=$channel_id AND spider_name=$spider_name`,
-      { $user_id: userId, $channel_id: channelId, $spider_name: spiderName },
-      function(_err, rows) {
-        if (rows.length > 0) {
+    pool.query(
+      `SELECT * FROM schedule WHERE user_id=$1 AND `
+      + `channel_id=$2 AND spider_name=$3`,
+      [userId, channelId, spiderName],
+      function(_err, res) {
+        console.log(res.command);
+        if (res.rows.length > 0) {
           resolve(true);
         }
         else {
