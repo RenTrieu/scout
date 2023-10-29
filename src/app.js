@@ -57,6 +57,8 @@ if (!dbExists) {
          + "PRIMARY KEY (uuid))");
 }
 
+/* Initializing Postgres */
+
 import pg from 'pg';
 const pool = new pg.Pool({
   user: process.env.POSTGRES_USER,
@@ -121,7 +123,7 @@ app.post('/interactions', async function (req, res) {
 
     // List Scheduled Spiders command
     if (name === 'list') {
-      return listCommand(req, res, db, displayLimit);
+      return listCommand(req, res, pool, displayLimit);
     }
 
     // "Schedule Spider" command
@@ -167,7 +169,7 @@ app.post('/interactions', async function (req, res) {
     // List Interactions
     if ((custom_id === 'list_next')
         || (custom_id === 'list_prev')) {
-      await listInteraction(req, res, db, displayLimit);
+      await listInteraction(req, res, pool, displayLimit);
     }
 
     // return res.send({ 

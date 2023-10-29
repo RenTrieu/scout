@@ -6,10 +6,10 @@ import {
 } from '../spider_manager.js';
 
 export default async function listCommand(
-  req, res, db, displayLimit=2
+  req, res, pool, displayLimit=2
 ) {
   const userId = req.body.member.user.id;
-  let userSpiders = await getUserSpiders(db, userId);
+  let userSpiders = await getUserSpiders(pool, userId);
   if (userSpiders.length <= 0) {
     return res.send({
       type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -83,16 +83,17 @@ export default async function listCommand(
 }
 
 export async function listInteraction(
-  req, res, db, displayLimit=2
+  req, res, pool, displayLimit=2
 ) {
   const headerEmbed = req.body.message.embeds[0];
   const userId = req.body.member.user.id;
 
-  const sqlQuery = 'SELECT * FROM schedule WHERE user_id = $userId';
+  const sqlQuery = 'SELECT * FROM schedule WHERE user_id = $1';
   const getSpiderRows = new Promise((resolve, reject) => {
-    db.all(sqlQuery, { $userId: userId },
-      function(_err, rows) {
-        resolve(rows);
+    pool.query(sqlQuery, [userId],
+      function(_err, result) {
+        console.log(_err);
+        resolve(result.rows);
       }
     );
   });

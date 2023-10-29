@@ -122,13 +122,13 @@ export function diffParse(spiderName) {
  * Iterates through the database and returns a Promise that resolves to a
  * Set() containing all active spiders
  */
-export async function getActiveSpiders(db) {
+export async function getActiveSpiders(pool) {
   const getActiveSpiders = new Promise((resolve, reject) => {
-    db.all(
+    pool.query(
       'SELECT spider_name FROM schedule',
-      function(_err, rows) {
+      function(_err, result) {
         const spiderSet = new Set();
-        rows.forEach((row) => {
+        result.rows.forEach((row) => {
           spiderSet.add(row.spider_name);
         });
         resolve(spiderSet)
@@ -142,13 +142,13 @@ export async function getActiveSpiders(db) {
  * Iterates through the database and returns a Promise that resolves to a 
  * Set() containing all users that have active spiders
  */
-export async function getActiveUsers(db) {
+export async function getActiveUsers(pool) {
   const getUserSet = new Promise((resolve, reject) => {
-    db.all(
+    pool.query(
       'SELECT user_id FROM schedule',
-      function(_err, rows) {
+      function(_err, result) {
         const userSet = new Set();
-        userSet.forEach((row) => {
+        result.rows.forEach((row) => {
           userSet.add(row.user_id);
         });
         resolve(userSet)
@@ -162,13 +162,15 @@ export async function getActiveUsers(db) {
  * Queries the database for all spiders owned by a user
  * and returns a Promise that resolves to an array of the results
  */
-export async function getUserSpiders(db, userId) {
+export async function getUserSpiders(pool, userId) {
   let getUserSpiders = new Promise((resolve, reject) => {
-    db.all(
-      `SELECT * FROM schedule WHERE user_id=$user_id`,
-      { $user_id: userId },
-      function(_err, rows) {
-        let userSpiders = rows.filter((row) => row.user_id == userId);
+    pool.query(
+      `SELECT * FROM schedule WHERE user_id=$1`,
+      [userId],
+      function(_err, result) {
+        let userSpiders = result.rows.filter((row) => {
+          return row.user_id == userId;
+        });
         resolve(userSpiders);
       }
     )
@@ -186,9 +188,8 @@ export async function checkSpider(pool, userId, channelId, spiderName) {
       `SELECT * FROM schedule WHERE user_id=$1 AND `
       + `channel_id=$2 AND spider_name=$3`,
       [userId, channelId, spiderName],
-      function(_err, res) {
-        console.log(res.command);
-        if (res.rows.length > 0) {
+      function(_err, result) {
+        if (result.rows.length > 0) {
           resolve(true);
         }
         else {
