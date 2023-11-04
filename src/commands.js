@@ -50,11 +50,144 @@ const SCHEDULE_COMMAND = {
   description: 'Schedules a webscraper to run',
   options: [
     {
-      type: 3,
-      name: 'spider',
-      description: 'Choose the webscraper to schedule',
-      required: true,
-      choices: getAvailableSpiders(),
+      name: 'hourly',
+      description: 'Repeat hourly',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider',
+          description: 'Choose the webscraper to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        }
+      ]
+    },
+    {
+      name: 'daily',
+      description: 'Repeat daily',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider',
+          description: 'Choose the webscraper to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        },
+        {
+          name: 'hour',
+          description: 'What hour to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(24).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        }
+      ]
+    },
+    {
+      name: 'monthly',
+      description: 'Repeat monthly',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider',
+          description: 'Choose the webscraper to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        },
+        {
+          name: 'hour',
+          description: 'What hour to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(24).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
+          name: 'day',
+          description: 'What day to run',
+          type: 3,
+          required: true,
+        },
+      ]
+    },
+    {
+      name: 'yearly',
+      description: 'Repeat yearly',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider',
+          description: 'Choose the webscraper to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        },
+        {
+          name: 'hour',
+          description: 'What hour to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(24).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
+          name: 'day',
+          description: 'What day to run',
+          type: 3,
+          required: true,
+        },
+        {
+          name: 'month',
+          description: 'What month to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(12).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+      ]
     }
   ],
   type: 1,
