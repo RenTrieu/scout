@@ -243,6 +243,12 @@ export function genPagedList(req, rows, displayLimit, prevId, nextId) {
  * Takes in a spider database row and returns a pretty embed
  */
 export function genSpiderEmbed(row, title) {
+  let scheduleStr = '';
+  const repeatInterval = row.repeat_interval;
+  scheduleStr += `Repeats ${repeatInterval}\n`;
+  Object.values(JSON.parse(row.schedule_str)).forEach((schedAttr) => {
+    scheduleStr += `${schedAttr.name}: ${schedAttr.value}\n`;
+  });
   return {
     title: title,
     type: 'rich',
@@ -251,7 +257,8 @@ export function genSpiderEmbed(row, title) {
       { name: 'Spider', value: row.spider_name },
       { name: 'Guild', value: row.guild_id },
       { name: 'Channel', value: row.channel_id },
-      { name: 'User', value: row.user_id }
+      { name: 'User', value: row.user_id },
+      { name: 'Schedule', value: scheduleStr }
     ]
   }
 }

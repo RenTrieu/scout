@@ -114,7 +114,7 @@ const SCHEDULE_COMMAND = {
           choices: getAvailableSpiders(),
         },
         {
-          name: 'day',
+          name: 'day-of-week',
           description: 'What day of the week to run',
           type: 3,
           required: true,
@@ -169,7 +169,6 @@ const SCHEDULE_COMMAND = {
         }
       ]
     },
-
     {
       name: 'monthly',
       description: 'Repeat monthly',

@@ -3,20 +3,10 @@ import express from 'express';
 import {
   InteractionType,
   InteractionResponseType,
-  InteractionResponseFlags,
-  MessageComponentTypes,
-  ButtonStyleTypes,
 } from 'discord-interactions';
 import { 
   VerifyDiscordRequest, 
-  DiscordRequest, 
 } from './utils.js';
-import {
-  diffParse,
-  getActiveUsers,
-  getActiveSpiders,
-  getUserSpiders,
-} from './spider_manager.js';
 import {
   callCommand,
   testCommand,
@@ -31,7 +21,6 @@ import {
   adminRemoveCommand,
   adminScheduleCommand
 } from './admin_commands/index.js';
-import * as fs from 'node:fs';
 import { createRequire } from 'module';
 
 // Create an express app
@@ -43,18 +32,6 @@ const PORT = process.env.PORT || 3000;
 // Create a scheduler to handle scheduled events
 const require = createRequire(import.meta.url);
 const schedule = require('node-schedule');
-
-// Initializing Schedule Database
-// const sqlite3 = require('sqlite3').verbose();
-// const dbFile = 'scout.sqlite'
-// const db = new sqlite3.Database(dbFile);
-// const dbExists = fs.existsSync(dbFile);
-// if (!dbExists) {
-//   db.run("CREATE TABLE schedule (uuid VARCHAR NOT NULL, "
-//          + "guild_id VARCHAR NOT NULL, user_id VARCHAR NOT NULL, "
-//          + "channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL, "
-//          + "PRIMARY KEY (uuid))");
-// }
 
 /* Initializing Postgres */
 
@@ -75,6 +52,7 @@ await initClient.query('CREATE TABLE IF NOT EXISTS schedule '
    + '(uuid VARCHAR NOT NULL, '
    + 'guild_id VARCHAR NOT NULL, user_id VARCHAR NOT NULL, '
    + 'channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL, '
+   + 'schedule_str VARCHAR NOT NULL, repeat_interval VARCHAR NOT NULL, '
    + 'PRIMARY KEY (uuid))');
 initClient.end();
 
