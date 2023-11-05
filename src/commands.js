@@ -82,10 +82,72 @@ const SCHEDULE_COMMAND = {
           choices: getAvailableSpiders(),
         },
         {
+          name: 'hour',
+          description: 'What hour to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(24).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
           name: 'minute',
           description: 'What minute of the hour to run',
           type: 3,
           required: true,
+        }
+      ]
+    },
+    {
+      name: 'weekly',
+      description: 'Repeat weekly',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider',
+          description: 'Choose the webscraper to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          name: 'day',
+          description: 'What day of the week to run',
+          type: 3,
+          required: true,
+          choices: [
+            {
+              name: 'Sunday',
+              value: '0'
+            },
+            {
+              name: 'Monday',
+              value: '1'
+            },
+            {
+              name: 'Tuesday',
+              value: '2'
+            },
+            {
+              name: 'Wednesday',
+              value: '3'
+            },
+            {
+              name: 'Thursday',
+              value: '4'
+            },
+            {
+              name: 'Friday',
+              value: '5'
+            },
+            {
+              name: 'Saturday',
+              value: '6'
+            }
+          ]
         },
         {
           name: 'hour',
@@ -98,9 +160,16 @@ const SCHEDULE_COMMAND = {
               value: num.toString()
             }
           })
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
         }
       ]
     },
+
     {
       name: 'monthly',
       description: 'Repeat monthly',
@@ -114,8 +183,8 @@ const SCHEDULE_COMMAND = {
           choices: getAvailableSpiders(),
         },
         {
-          name: 'minute',
-          description: 'What minute of the hour to run',
+          name: 'day',
+          description: 'What day to run',
           type: 3,
           required: true,
         },
@@ -132,11 +201,11 @@ const SCHEDULE_COMMAND = {
           })
         },
         {
-          name: 'day',
-          description: 'What day to run',
+          name: 'minute',
+          description: 'What minute of the hour to run',
           type: 3,
           required: true,
-        },
+        }
       ]
     },
     {
@@ -152,8 +221,20 @@ const SCHEDULE_COMMAND = {
           choices: getAvailableSpiders(),
         },
         {
-          name: 'minute',
-          description: 'What minute of the hour to run',
+          name: 'month',
+          description: 'What month to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(12).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
+          name: 'day',
+          description: 'What day to run',
           type: 3,
           required: true,
         },
@@ -170,23 +251,11 @@ const SCHEDULE_COMMAND = {
           })
         },
         {
-          name: 'day',
-          description: 'What day to run',
+          name: 'minute',
+          description: 'What minute of the hour to run',
           type: 3,
           required: true,
-        },
-        {
-          name: 'month',
-          description: 'What month to run',
-          type: 3,
-          required: true,
-          choices: Array.from(Array(12).keys()).map((num) => {
-            return {
-              name: num.toString(),
-              value: num.toString()
-            }
-          })
-        },
+        }
       ]
     }
   ],

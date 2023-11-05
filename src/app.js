@@ -33,7 +33,6 @@ import {
 } from './admin_commands/index.js';
 import * as fs from 'node:fs';
 import { createRequire } from 'module';
-import { Buffer, constants } from 'node:buffer';
 
 // Create an express app
 const app = express();
@@ -46,16 +45,16 @@ const require = createRequire(import.meta.url);
 const schedule = require('node-schedule');
 
 // Initializing Schedule Database
-const sqlite3 = require('sqlite3').verbose();
-const dbFile = 'scout.sqlite'
-const db = new sqlite3.Database(dbFile);
-const dbExists = fs.existsSync(dbFile);
-if (!dbExists) {
-  db.run("CREATE TABLE schedule (uuid VARCHAR NOT NULL, "
-         + "guild_id VARCHAR NOT NULL, user_id VARCHAR NOT NULL, "
-         + "channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL, "
-         + "PRIMARY KEY (uuid))");
-}
+// const sqlite3 = require('sqlite3').verbose();
+// const dbFile = 'scout.sqlite'
+// const db = new sqlite3.Database(dbFile);
+// const dbExists = fs.existsSync(dbFile);
+// if (!dbExists) {
+//   db.run("CREATE TABLE schedule (uuid VARCHAR NOT NULL, "
+//          + "guild_id VARCHAR NOT NULL, user_id VARCHAR NOT NULL, "
+//          + "channel_id VARCHAR NOT NULL, spider_name TEXT NOT NULL, "
+//          + "PRIMARY KEY (uuid))");
+// }
 
 /* Initializing Postgres */
 
@@ -181,43 +180,43 @@ app.post('/interactions', async function (req, res) {
  */
 const rule = new schedule.RecurrenceRule();
 rule.minute = 46;
-const job = schedule.scheduleJob(rule, function() {
-  const activeSpidersPromise = getActiveSpiders(db);
-  activeSpidersPromise.then((spidersSet) => {
-    spidersSet.forEach((spider) => {
-      const diffEmbed = diffParse(spider);
-      const allRowsPromise = new Promise((resolve, reject) => {
-        db.all(
-          'SELECT * FROM schedule',
-          function(_err, rows) {
-            resolve(rows)
-          }
-        );
-      });
-      allRowsPromise.then((rows) => {
-        rows.forEach((row) => {
-          const userId = row.user_id;
-          const channelId = row.channel_id;
-
-          const endpoint = `channels/${channelId}/messages`;
-          diffEmbed.description = `<@${userId}>`;
-          const requestPromise = new Promise((_resolve, _reject) => {
-            DiscordRequest(endpoint, {
-              method: 'POST',
-              body: {
-                embeds : [diffEmbed],
-                allowed_mentions: {
-                  "users": [userId]
-                }
-              }
-            });
-          });
-          requestPromise.then();
-        });
-      });
-    });
-  });
-});
+// const job = schedule.scheduleJob(rule, function() {
+//   const activeSpidersPromise = getActiveSpiders(db);
+//   activeSpidersPromise.then((spidersSet) => {
+//     spidersSet.forEach((spider) => {
+//       const diffEmbed = diffParse(spider);
+//       const allRowsPromise = new Promise((resolve, reject) => {
+//         db.all(
+//           'SELECT * FROM schedule',
+//           function(_err, rows) {
+//             resolve(rows)
+//           }
+//         );
+//       });
+//       allRowsPromise.then((rows) => {
+//         rows.forEach((row) => {
+//           const userId = row.user_id;
+//           const channelId = row.channel_id;
+//
+//           const endpoint = `channels/${channelId}/messages`;
+//           diffEmbed.description = `<@${userId}>`;
+//           const requestPromise = new Promise((_resolve, _reject) => {
+//             DiscordRequest(endpoint, {
+//               method: 'POST',
+//               body: {
+//                 embeds : [diffEmbed],
+//                 allowed_mentions: {
+//                   "users": [userId]
+//                 }
+//               }
+//             });
+//           });
+//           requestPromise.then();
+//         });
+//       });
+//     });
+//   });
+// });
 
 app.listen(PORT, () => {
   console.log('Listening on port', PORT);
