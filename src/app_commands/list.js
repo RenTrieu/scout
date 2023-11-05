@@ -41,7 +41,6 @@ export default async function listCommand(
     Object.values(JSON.parse(row.schedule_str)).forEach((schedAttr) => {
       scheduleStr += `${schedAttr.name}: ${schedAttr.value}\n`;
     });
-    console.log(scheduleStr);
     row_embeds.push(
       {
         title: `Result [${resultNum}/${pageTotal}]`,

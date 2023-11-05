@@ -327,29 +327,302 @@ const ADMIN_SCHEDULE_COMMAND = {
   description: 'Schedules a spider',
   options: [
     {
-      type: 3,
-      name: 'spider-name',
-      description: 'Spider to schedule',
-      required: true,
-      choices: getAvailableSpiders(),
+      name: 'hourly',
+      description: 'Repeat hourly',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider-name',
+          description: 'Spider to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          type: 3,
+          name: 'user-id',
+          description: 'User to schedule spider for',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'channel-id',
+          description: 'Channel in which to schedule spider',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'guild-id',
+          description: 'Guild in which to schedule spider',
+          required: true,
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        }
+      ]
     },
     {
-      type: 3,
-      name: 'user-id',
-      description: 'User to schedule spider for',
-      required: true,
+      name: 'daily',
+      description: 'Repeat daily',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider-name',
+          description: 'Spider to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          type: 3,
+          name: 'user-id',
+          description: 'User to schedule spider for',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'channel-id',
+          description: 'Channel in which to schedule spider',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'guild-id',
+          description: 'Guild in which to schedule spider',
+          required: true,
+        },
+        {
+          name: 'hour',
+          description: 'What hour to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(24).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        }
+      ]
     },
     {
-      type: 3,
-      name: 'channel-id',
-      description: 'Channel in which to schedule spider',
-      required: true,
+      name: 'weekly',
+      description: 'Repeat weekly',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider-name',
+          description: 'Spider to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          type: 3,
+          name: 'user-id',
+          description: 'User to schedule spider for',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'channel-id',
+          description: 'Channel in which to schedule spider',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'guild-id',
+          description: 'Guild in which to schedule spider',
+          required: true,
+        },
+        {
+          name: 'day-of-week',
+          description: 'What day of the week to run',
+          type: 3,
+          required: true,
+          choices: [
+            {
+              name: 'Sunday',
+              value: '0'
+            },
+            {
+              name: 'Monday',
+              value: '1'
+            },
+            {
+              name: 'Tuesday',
+              value: '2'
+            },
+            {
+              name: 'Wednesday',
+              value: '3'
+            },
+            {
+              name: 'Thursday',
+              value: '4'
+            },
+            {
+              name: 'Friday',
+              value: '5'
+            },
+            {
+              name: 'Saturday',
+              value: '6'
+            }
+          ]
+        },
+        {
+          name: 'hour',
+          description: 'What hour to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(24).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        }
+      ]
     },
     {
-      type: 3,
-      name: 'guild-id',
-      description: 'Guild in which to schedule spider',
-      required: true,
+      name: 'monthly',
+      description: 'Repeat monthly',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider-name',
+          description: 'Spider to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          type: 3,
+          name: 'user-id',
+          description: 'User to schedule spider for',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'channel-id',
+          description: 'Channel in which to schedule spider',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'guild-id',
+          description: 'Guild in which to schedule spider',
+          required: true,
+        },
+        {
+          name: 'day',
+          description: 'What day to run',
+          type: 3,
+          required: true,
+        },
+        {
+          name: 'hour',
+          description: 'What hour to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(24).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        }
+      ]
+    },
+    {
+      name: 'yearly',
+      description: 'Repeat yearly',
+      type: 1,
+      options: [
+        {
+          type: 3,
+          name: 'spider-name',
+          description: 'Spider to schedule',
+          required: true,
+          choices: getAvailableSpiders(),
+        },
+        {
+          type: 3,
+          name: 'user-id',
+          description: 'User to schedule spider for',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'channel-id',
+          description: 'Channel in which to schedule spider',
+          required: true,
+        },
+        {
+          type: 3,
+          name: 'guild-id',
+          description: 'Guild in which to schedule spider',
+          required: true,
+        },
+        {
+          name: 'month',
+          description: 'What month to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(12).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
+          name: 'day',
+          description: 'What day to run',
+          type: 3,
+          required: true,
+        },
+        {
+          name: 'hour',
+          description: 'What hour to run',
+          type: 3,
+          required: true,
+          choices: Array.from(Array(24).keys()).map((num) => {
+            return {
+              name: num.toString(),
+              value: num.toString()
+            }
+          })
+        },
+        {
+          name: 'minute',
+          description: 'What minute of the hour to run',
+          type: 3,
+          required: true,
+        }
+      ]
     }
   ],
   type: 1,
