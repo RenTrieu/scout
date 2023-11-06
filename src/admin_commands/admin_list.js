@@ -86,6 +86,12 @@ export default async function adminListCommand(
     let resultNum = 1;
     displayRows.forEach((row) => {
       const pageTotal = Math.min(displayLimit, rows.length);
+      let scheduleStr = '';
+      const repeatInterval = row.repeat_interval;
+      scheduleStr += `Repeats ${repeatInterval}\n`;
+      Object.values(JSON.parse(row.schedule_str)).forEach((schedAttr) => {
+        scheduleStr += `${schedAttr.name}: ${schedAttr.value}\n`;
+      });
       row_embeds.push(
         {
           title: `Result [${resultNum}/${pageTotal}]`,
@@ -95,7 +101,8 @@ export default async function adminListCommand(
             { name: 'Spider', 'value': row.spider_name },
             { name: 'Guild', 'value': row.guild_id },
             { name: 'Channel', 'value': row.channel_id },
-            { name: 'User', 'value': row.user_id }
+            { name: 'User', 'value': row.user_id },
+            { name: 'Scheduled', 'value': scheduleStr }
           ]
         }
       );
