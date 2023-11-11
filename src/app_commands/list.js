@@ -58,8 +58,6 @@ export default async function listCommand(
     resultNum += 1;
   });
 
-  console.log('jobMap: ', jobMap);
-
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
     data: {
