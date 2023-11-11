@@ -156,8 +156,8 @@ app.post('/interactions', async function (req, res) {
 /*
  * Runs scheduled spiders at a regular interval
  */
-const rule = new schedule.RecurrenceRule();
-rule.minute = 46;
+// const rule = new schedule.RecurrenceRule();
+// rule.minute = 46;
 // const job = schedule.scheduleJob(rule, function() {
 //   const activeSpidersPromise = getActiveSpiders(db);
 //   activeSpidersPromise.then((spidersSet) => {
