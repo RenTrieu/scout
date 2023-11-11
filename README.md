@@ -1,5 +1,5 @@
 # Scout
-Discord app for reporting information pulled from web
+Discord app for scheduling, running, and reporting information pulled from web
 scrapers
 
 ## Environment File
