@@ -1,8 +1,8 @@
 import { InteractionResponseType } from "discord-interactions";
-import { checkSpider } from '../spider_manager.js';
+import { checkSpider, scheduleSpider } from '../spider_manager.js';
 import { genUUID } from '../utils.js';
 
-export default async function adminScheduleCommand(req, res, pool) {
+export default async function adminScheduleCommand(req, res, pool, jobMap) {
   // Building the SQL query based off of the passed arguments
   const spiderName = req.body.data.options[0].options.filter((arg) => {
     return arg.name == 'spider-name';
@@ -60,6 +60,17 @@ export default async function adminScheduleCommand(req, res, pool) {
       repeatInterval
     ],
     function() {
+      /* Scheduling spider as a scheduled job */
+      scheduleSpider(
+        jobMap, 
+        uuid,
+        scheduleObj, 
+        spiderName, 
+        userId, 
+        channelId,
+      );
+
+      /* Sending response on success */
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {

@@ -1,6 +1,7 @@
 import { InteractionResponseType } from "discord-interactions";
+import { cancelSpider } from '../spider_manager.js';
 
-export default async function adminRemoveCommand(req, res, pool) {
+export default async function adminRemoveCommand(req, res, pool, jobMap) {
   const uuid = req.body.data.options[0].value;
   let getRow = new Promise((resolve, reject) => {
     pool.query(
@@ -25,6 +26,10 @@ export default async function adminRemoveCommand(req, res, pool) {
     'DELETE FROM schedule WHERE uuid=$1',
     [uuid],
     function(result) {
+      /* Canceling the spider */
+      cancelSpider(jobMap, uuid);
+
+      /* Sending response on success */
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {

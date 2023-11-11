@@ -307,3 +307,12 @@ export function scheduleSpider(
 /*
  * Helper method that removes a spider from node-schedule
  */
+export function cancelSpider(
+  jobMap, uuid
+) {
+  if (jobMap.has(uuid)) {
+    jobMap.get(uuid).cancel();
+    jobMap.delete(uuid);
+  }
+}
+

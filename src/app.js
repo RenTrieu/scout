@@ -112,7 +112,7 @@ app.post('/interactions', async function (req, res) {
 
     // Remove Spider command
     if (name === 'remove') {
-      return removeCommand(req, res, pool);
+      return removeCommand(req, res, pool, jobMap);
     }
 
     /* Admin Commands */
@@ -124,12 +124,12 @@ app.post('/interactions', async function (req, res) {
 
     // Admin Remove command
     if (name == 'admin_remove') {
-      return adminRemoveCommand(req, res, pool);
+      return adminRemoveCommand(req, res, pool, jobMap);
     }
 
     // Admin Schedule command
     if (name == 'admin_schedule') {
-      return adminScheduleCommand(req, res, pool);
+      return adminScheduleCommand(req, res, pool, jobMap);
     }
   }
 
