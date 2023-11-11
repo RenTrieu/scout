@@ -65,5 +65,9 @@ services:
       retries: 3
       start_period: 10s
       start_interval: 5s
+    volumes:
+      - db-data:/var/lib/postgresql/data
 networks:
   scout-net:
+volumes:
+  db-data:

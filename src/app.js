@@ -8,6 +8,9 @@ import {
   VerifyDiscordRequest, 
 } from './utils.js';
 import {
+  scheduleSpider,
+} from './spider_manager.js';
+import {
   callCommand,
   testCommand,
   listCommand,
@@ -87,12 +90,6 @@ app.post('/interactions', async function (req, res) {
   if (type === InteractionType.APPLICATION_COMMAND) {
     const { name } = data;
 
-    // "test" command
-    if (name === 'test') {
-      // Send a message into the channel where command was triggered from
-      return testCommand(req, res);
-    }
-
     /* Application Commands */
 
     // "Spider Call" command
@@ -156,47 +153,24 @@ app.post('/interactions', async function (req, res) {
 });
 
 /*
- * Runs scheduled spiders at a regular interval
+ * On startup, iterates through the database for scheduled 
+ * spiders and creates jobs for each one
  */
-// const rule = new schedule.RecurrenceRule();
-// rule.minute = 46;
-// const job = schedule.scheduleJob(rule, function() {
-//   const activeSpidersPromise = getActiveSpiders(db);
-//   activeSpidersPromise.then((spidersSet) => {
-//     spidersSet.forEach((spider) => {
-//       const diffEmbed = diffParse(spider);
-//       const allRowsPromise = new Promise((resolve, reject) => {
-//         db.all(
-//           'SELECT * FROM schedule',
-//           function(_err, rows) {
-//             resolve(rows)
-//           }
-//         );
-//       });
-//       allRowsPromise.then((rows) => {
-//         rows.forEach((row) => {
-//           const userId = row.user_id;
-//           const channelId = row.channel_id;
-//
-//           const endpoint = `channels/${channelId}/messages`;
-//           diffEmbed.description = `<@${userId}>`;
-//           const requestPromise = new Promise((_resolve, _reject) => {
-//             DiscordRequest(endpoint, {
-//               method: 'POST',
-//               body: {
-//                 embeds : [diffEmbed],
-//                 allowed_mentions: {
-//                   "users": [userId]
-//                 }
-//               }
-//             });
-//           });
-//           requestPromise.then();
-//         });
-//       });
-//     });
-//   });
-// });
+pool.query(
+  'SELECT * FROM schedule',
+  function(_err, res) {
+    res.rows.forEach((row) => {
+      scheduleSpider(
+        jobMap,
+        row.uuid,
+        JSON.parse(row.schedule_str),
+        row.spider_name,
+        row.user_id,
+        row.channel_id,
+      )
+    });
+  }
+)
 
 app.listen(PORT, () => {
   console.log('Listening on port', PORT);

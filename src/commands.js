@@ -6,14 +6,7 @@ import {
   getAvailableSpiders
 } from './utils.js';
 
-// Simple test command
-const TEST_COMMAND = {
-  name: 'test',
-  description: 'Basic command',
-  type: 1,
-};
-
-// Call test command
+// Runs a webscraper
 const CALL_COMMAND = {
   name: 'call',
   description: 'Calls a webscraper',
@@ -269,7 +262,6 @@ const LIST_COMMAND =  {
 };
 
 const ALL_COMMANDS = [
-  TEST_COMMAND, 
   CALL_COMMAND, 
   SCHEDULE_COMMAND,
   LIST_COMMAND,
