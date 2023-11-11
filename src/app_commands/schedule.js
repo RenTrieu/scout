@@ -1,12 +1,9 @@
 import { InteractionResponseType } from 'discord-interactions';
-import { checkSpider, diffParse } from '../spider_manager.js';
-import { DiscordRequest, genUUID } from '../utils.js';
+import { checkSpider, scheduleSpider } from '../spider_manager.js';
+import { genUUID } from '../utils.js';
 
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const schedule = require('node-schedule');
 
-export default async function scheduleCommand(req, res, pool) {
+export default async function scheduleCommand(req, res, pool, jobMap) {
   const spider_name = req.body.data.options[0].options.filter((option) => {
     return option.name == 'spider'
   })[0].value;
@@ -33,36 +30,6 @@ export default async function scheduleCommand(req, res, pool) {
     return schedAttr.name != 'spider'
   });
 
-  const newSchedObj = {};
-  scheduleObj.forEach((schedAttrs) => {
-    if (schedAttrs.name != 'day-of-week') {
-      Object.assign(newSchedObj, { [schedAttrs.name]: schedAttrs.value });
-    }
-    else {
-      Object.assign(newSchedObj, { 'dayOfWeek': schedAttrs.value });
-    }
-  });
-
-  Object.assign(newSchedObj, { 'tz': 'PST' });
-
-  const job = schedule.scheduleJob(newSchedObj, function() {
-    const diffEmbed = diffParse(spider_name);
-    const endpoint = `channels/${channel_id}/messages`;
-    const requestPromise = new Promise((_resolve, _reject) => {
-      DiscordRequest(endpoint, {
-        method: 'POST',
-        body: {
-          embeds : [diffEmbed],
-          allowed_mentions: {
-            "users": [user_id]
-          }
-        }
-      });
-    });
-    requestPromise.then();
-    console.log('test!!!');
-  });
-
   const scheduleStr = JSON.stringify(scheduleObj);
   const repeatInterval = req.body.data.options[0].name;
 
@@ -80,6 +47,18 @@ export default async function scheduleCommand(req, res, pool) {
       repeatInterval
     ],
     function() {
+
+      /* Scheduling spider as a scheduled job */
+      scheduleSpider(
+        jobMap, 
+        uuid,
+        scheduleObj, 
+        spider_name, 
+        user_id, 
+        channel_id,
+      );
+
+      /* Sending success response */
       return res.send({
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: {

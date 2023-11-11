@@ -6,7 +6,7 @@ import {
 } from '../spider_manager.js';
 
 export default async function listCommand(
-  req, res, pool, displayLimit=2
+  req, res, pool, displayLimit=2, jobMap
 ) {
   const userId = req.body.member.user.id;
   let userSpiders = await getUserSpiders(pool, userId);
@@ -57,6 +57,8 @@ export default async function listCommand(
     );
     resultNum += 1;
   });
+
+  console.log('jobMap: ', jobMap);
 
   return res.send({
     type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,

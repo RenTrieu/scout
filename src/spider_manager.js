@@ -1,10 +1,14 @@
 import 'dotenv/config';
 import {
+  DiscordRequest,
   unixCommandSync,
   getAvailableSpiders,
 } from './utils.js';
 import * as fs from 'node:fs';
 
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const schedule = require('node-schedule');
 
 /*
  * Runs a given spider and only reports the changes between the current and 
@@ -262,3 +266,44 @@ export function genSpiderEmbed(row, title) {
     ]
   }
 }
+
+/*
+ * Helper method that schedules a spider as a job in node-schedule
+ */
+export function scheduleSpider(
+  jobMap, uuid, scheduleObj, spiderName, userId, channelId
+) {
+  const newSchedObj = {};
+  scheduleObj.forEach((schedAttrs) => {
+    if (schedAttrs.name != 'day-of-week') {
+      Object.assign(newSchedObj, { [schedAttrs.name]: schedAttrs.value });
+    }
+    else {
+      Object.assign(newSchedObj, { 'dayOfWeek': schedAttrs.value });
+    }
+  });
+
+  Object.assign(newSchedObj, { 'tz': 'PST' });
+
+  const job = schedule.scheduleJob(newSchedObj, function() {
+    const diffEmbed = diffParse(spiderName);
+    const endpoint = `channels/${channelId}/messages`;
+    const requestPromise = new Promise((_resolve, _reject) => {
+      DiscordRequest(endpoint, {
+        method: 'POST',
+        body: {
+          embeds : [diffEmbed],
+          allowed_mentions: {
+            "users": [userId]
+          }
+        }
+      });
+    });
+    requestPromise.then();
+  });
+  jobMap.set(uuid, job);
+}
+
+/*
+ * Helper method that removes a spider from node-schedule
+ */

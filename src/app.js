@@ -56,6 +56,8 @@ await initClient.query('CREATE TABLE IF NOT EXISTS schedule '
    + 'PRIMARY KEY (uuid))');
 initClient.end();
 
+const jobMap = new Map();
+
 /* Application Constants */
 
 // The maximum number of items to display when a list is called
@@ -100,12 +102,12 @@ app.post('/interactions', async function (req, res) {
 
     // List Scheduled Spiders command
     if (name === 'list') {
-      return listCommand(req, res, pool, displayLimit);
+      return listCommand(req, res, pool, displayLimit, jobMap);
     }
 
     // "Schedule Spider" command
     if (name === 'schedule') {
-      return scheduleCommand(req, res, pool);
+      return scheduleCommand(req, res, pool, jobMap);
     }
 
     // Remove Spider command
