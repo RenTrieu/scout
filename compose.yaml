@@ -6,6 +6,7 @@ services:
       APP_ID: ${APP_ID}
       DISCORD_TOKEN: ${DISCORD_TOKEN}
       PUBLIC_KEY: ${PUBLIC_KEY}
+      PORT: ${APP_PORT}
     build: ./src
     env_file: .env
     command: ["node", "app.js"]
