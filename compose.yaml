@@ -11,9 +11,9 @@ services:
     env_file: .env
     command: ["node", "app.js"]
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:${PORT}:${PORT}"
     expose:
-      - "3000"
+      - "${PORT}"
     networks:
       - scout-net
     depends_on:
