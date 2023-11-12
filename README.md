@@ -19,10 +19,6 @@ This bot has administration commands that can be used to manage the database.
 These commands will only be available on the server whose guild id is
 specified in this environment variable.
 
-> ``NGROK_DOMAIN``
-This bot uses ngrok to receive requests. This environment variable should be
-the ngrok domain that is used as bot's interaction endpoint.
-
 > ``DATABASE_ALIAS``
 This is the hostname of the postgres database
 
