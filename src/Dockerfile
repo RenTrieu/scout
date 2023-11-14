@@ -14,4 +14,3 @@ RUN pip install scrapy
 
 RUN npm install
 CMD ["node", "app.js"]
-EXPOSE 3000
