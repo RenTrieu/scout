@@ -1,6 +1,6 @@
 services:
   app:
-    image: debian:latest
+    image: alpine:latest
     container_name: scout
     environment:
       APP_ID: ${APP_ID}
