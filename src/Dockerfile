@@ -3,7 +3,7 @@ WORKDIR /src
 COPY . .
 
 RUN apk add --no-cache bash
-RUN apk add --no-cache npm python3 py3-pip
+RUN apk add --no-cache npm python3 py3-pip curl
 
 SHELL ["/bin/bash", "-c"]
 ENV VIRTUAL_ENV=/opt/venv

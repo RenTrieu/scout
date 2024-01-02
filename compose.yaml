@@ -20,6 +20,13 @@ services:
       db:
         condition: service_healthy
         restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-I", "http://localhost:${APP_PORT}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
   db:
     image: postgres:latest
     restart: unless-stopped
@@ -46,6 +53,24 @@ services:
       start_interval: 5s
     volumes:
       - db-data:/var/lib/postgresql/data
+  nginx:
+    image: nginx:mainline-alpine
+    environment:
+      APP_IP: "scout"
+    volumes:
+      - ./nginx:/etc/nginx/
+    ports:
+      - "80:80"
+      - "443:443"
+    expose:
+      - "80"
+      - "443"
+    networks:
+      scout-net:
+    depends_on:
+      app:
+        condition: service_healthy
+        restart: true
 networks:
   scout-net:
 volumes:
