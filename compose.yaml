@@ -57,8 +57,11 @@ services:
     image: nginx:mainline-alpine
     environment:
       APP_IP: "scout"
+      APP_PORT: ${APP_PORT}
+      DOMAIN: ${DOMAIN}
     volumes:
       - ./nginx:/etc/nginx/
+      - nginx-conf:/etc/nginx/conf.d
     ports:
       - "80:80"
       - "443:443"
@@ -75,3 +78,4 @@ networks:
   scout-net:
 volumes:
   db-data:
+  nginx-conf:
