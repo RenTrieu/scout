@@ -2,6 +2,7 @@ services:
   app:
     image: alpine:latest
     container_name: scout
+    restart: unless-stopped
     environment:
       APP_ID: ${APP_ID}
       DISCORD_TOKEN: ${DISCORD_TOKEN}
@@ -55,6 +56,7 @@ services:
       - db-data:/var/lib/postgresql/data
   nginx:
     image: nginx:mainline-alpine
+    restart: unless-stopped
     environment:
       APP_IP: "scout"
       APP_PORT: ${APP_PORT}
