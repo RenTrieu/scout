@@ -27,7 +27,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-      start_interval: 5s
   db:
     image: postgres:latest
     restart: unless-stopped
@@ -51,7 +50,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
-      start_interval: 5s
     volumes:
       - db-data:/var/lib/postgresql/data
   nginx:
